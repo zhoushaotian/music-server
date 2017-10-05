@@ -1,0 +1,19 @@
+{
+  "name": "music-demo",
+  "version": "1.0.0",
+  "description": "test github musicAPI",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.16.1",
+    "music-api": "^0.3.9"
+  },
+  "devDependencies": {
+    "eslint": "^4.8.0",
+    "eslint-plugin-html": "^3.2.2"
+  }
+}
