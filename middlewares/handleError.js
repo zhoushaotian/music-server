@@ -8,15 +8,12 @@ const STATUS_CODE = require('../enums/status');
  * @param {any} res 响应对象
  * @param {any} next 
  */
-function handleErrorMid(err, req, res) {
+function handleErrorMid(err, req, res, next) {
     switch (err.status) {
     case STATUS_CODE.API_ERROR:
-        res.status(500).send({
+        res.status(err.status).send({
             msg: err.message
         });
-        break;
-    case STATUS_CODE.NOT_FOUND:
-        res.render('not_found');
         break;
     default:
         res.status(500).send({

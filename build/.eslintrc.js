@@ -1,9 +1,10 @@
 module.exports = {
     "env": {
         "es6": true,
-        "node": true
+        "browser": true
     }, 
-    "extends": ["eslint:recommended"],
+    parser: 'babel-eslint',
+    "extends": ["eslint:recommended", "plugin:react/recommended"],
     "rules": {
         "key-spacing": [2, {                      // enforce spacing between keys and values in object literal properties
             "beforeColon": false,
@@ -27,6 +28,9 @@ module.exports = {
         "semi": [                                 // require or disallow use of semicolons instead of ASI
             "error",
             "always"
+        ],
+        "no-console": [
+            0
         ]
     }
 };

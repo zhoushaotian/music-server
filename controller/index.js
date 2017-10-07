@@ -1,9 +1,10 @@
 'use strict';
 const express = require('express');
 const router = express.Router();
+exports.rootPath = '/';
 
 router.get('/', function(req, res) {
-    res.render('index');
+    return res.render('index');
 });
 
-module.exports = router;
+exports.router = router;
