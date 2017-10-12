@@ -18,7 +18,7 @@ routes(app);
 app.use(handleErrorMid);
 
 app.listen('3000', function() {
-    console.log('musci server is running at 3000');
+    console.log('music server is running at 3000');
 });
 
 

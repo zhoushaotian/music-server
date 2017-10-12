@@ -1,22 +1,23 @@
-import {UPDATE_LIST, UPDATE_LOADING, CLEAN_LIST} from '../actions/list';
+import {UPDATE_DETAIL, CLEAN_DETAIL, UPDATE_LOADING} from '../actions/detail';
 
-const INIT_SATE = {
-    list: [],
+const INIT_STATE = {
+    detail: {},
     loading: false
 };
-export default function list(state = INIT_SATE, action) {
+
+export default function detail(state = INIT_STATE, action) {
     switch (action.type) {
-    case UPDATE_LIST:
+    case UPDATE_DETAIL:
         return Object.assign({}, state, {
-            list: action.data
+            detail: action.data
         });
     case UPDATE_LOADING:
         return Object.assign({}, state, {
             loading: action.data
         });
-    case CLEAN_LIST:
+    case CLEAN_DETAIL:
         return {
-            list: [],
+            detail: {},
             loading: false
         };
     default:

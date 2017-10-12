@@ -1,7 +1,7 @@
 import React from 'react';
 import { Router, Route, browserHistory } from 'react-router';
 import { Provider } from 'react-redux';
-import Demo from './pages/demo';
+import Demo from './pages/index';
 import store from './store';
 
 export default (

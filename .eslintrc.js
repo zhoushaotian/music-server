@@ -27,6 +27,9 @@ module.exports = {
         "semi": [                                 // require or disallow use of semicolons instead of ASI
             "error",
             "always"
+        ],
+        "no-console": [
+            0
         ]
     }
 };

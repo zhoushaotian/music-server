@@ -1,11 +1,11 @@
 import {combineReducers } from 'redux';
 
 import list from './list';
-import post from './post';
+import detail from './detail';
 
 const appReducer = combineReducers({
     list,
-    currentPost: post
+    detail
 });
 
 export default appReducer;
