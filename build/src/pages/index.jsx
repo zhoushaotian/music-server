@@ -63,12 +63,12 @@ class Demo extends React.Component {
     handleServerChange(value) {
         const {searchKey} = this.state;
         const {dispatch} = this.props;
-        if(!searchKey) {
-            return;
-        }
         this.setState({
             server: value
         }, function() {
+            if(!searchKey) {
+                return;
+            }
             dispatch(searchSong({
                 key: searchKey,
                 server: value,
