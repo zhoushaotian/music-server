@@ -17,8 +17,8 @@ routes(app);
 // 错误处理
 app.use(handleErrorMid);
 
-app.listen('3000', function() {
-    console.log('music server is running at 3000');
+app.listen('3001', function() {
+    console.log('music server is running at 3001');
 });
 
 

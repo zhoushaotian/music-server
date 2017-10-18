@@ -17,7 +17,7 @@ function handleErrorMid(err, req, res, next) {
         break;
     default:
         res.status(500).send({
-            msg: err.message
+            msg: '系统错误'
         });
         break;
     }

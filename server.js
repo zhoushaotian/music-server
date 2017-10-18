@@ -2,7 +2,7 @@
 const express = require('express');
 const path = require('path');
 const webpack = require('webpack');
-const proxyMiddleware = require('http-proxy-middleware')
+const proxyMiddleware = require('http-proxy-middleware');
 const webpackConfig = require('./webpack.config.js');
 const proxyConfig = require('./proxy');
 

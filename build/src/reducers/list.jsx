@@ -1,8 +1,10 @@
-import {UPDATE_LIST, UPDATE_LOADING, CLEAN_LIST} from '../actions/list';
+import {UPDATE_LIST, UPDATE_LOADING, CLEAN_LIST, UPDATE_CURRENT_PAGE, UPDATE_TOTAL} from '../actions/list';
 
 const INIT_SATE = {
     list: [],
-    loading: false
+    loading: false,
+    total: 0,
+    currentPage: 1
 };
 export default function list(state = INIT_SATE, action) {
     switch (action.type) {
@@ -19,6 +21,14 @@ export default function list(state = INIT_SATE, action) {
             list: [],
             loading: false
         };
+    case UPDATE_CURRENT_PAGE: 
+        return Object.assign({}, state, {
+            currentPage: action.data
+        });
+    case UPDATE_TOTAL: 
+        return Object.assign({}, state, {
+            total: action.data
+        });
     default:
         return state;
     }

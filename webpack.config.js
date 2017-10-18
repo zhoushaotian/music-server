@@ -5,10 +5,12 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const FriendlyErrorsPlugin = require('friendly-errors-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const extractLESS = new ExtractTextPlugin('app.[chunkhash:8].min.css');
+const del = require('del');
 
+del([path.join(__dirname, '/public/**')]);
 module.exports = {
     entry: {
-        app: ['./dev_client', path.resolve(__dirname, 'build/src/app.jsx')]
+        app: [path.resolve(__dirname, 'build/src/app.jsx')]
     },
     output: {
         path: path.resolve(__dirname, './public'),
@@ -16,7 +18,7 @@ module.exports = {
         chunkFilename: 'js/[name].[hash:8].js',
         publicPath: '/'
     },
-    devtool: '#cheap-module-eval-source-map',
+    devtool: 'source-map',
     resolve: {
         extensions: ['.js', '.jsx', '.json']
     },
@@ -74,7 +76,7 @@ module.exports = {
         new webpack.HotModuleReplacementPlugin(),
         new FriendlyErrorsPlugin(),
         new HtmlWebpackPlugin({
-            filename: 'index.html',
+            filename: '../views/index.hbs',
             template: 'index.html',
             inject: true
         })

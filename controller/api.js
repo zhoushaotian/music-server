@@ -15,17 +15,18 @@ router.get('/search/song', function(req, res, next) {
         err.status = STATUS_CODE.API_ERROR;
         return next(err);
     }
-    if(MUSIC_SERVER.indexOf(req.query.server) === -1) {
+    if(Object.keys(MUSIC_SERVER).indexOf(req.query.server) === -1) {
         let err = new Error('缺少必要参数');
         err.status = STATUS_CODE.API_ERROR;
         return next(err);
     }
     let key = req.query.key;
     let vendor = req.query.server;
+    let page = parseInt(req.query.page) ? parseInt(req.query.page) : 1;
     music.searchSong(vendor, {
         key,
         limit: 10,
-        page: 1,
+        page,
         raw: false
     }).then(function(data) {
         res.send(data);
@@ -40,7 +41,7 @@ router.get('/get/song', function(req, res, next) {
         err.status = STATUS_CODE.API_ERROR;
         return next(err);
     }
-    if(MUSIC_SERVER.indexOf(req.query.server) === -1) {
+    if(Object.keys(MUSIC_SERVER).indexOf(req.query.server) === -1) {
         let err = new Error('缺少必要参数');
         err.status = STATUS_CODE.API_ERROR;
         return next(err);

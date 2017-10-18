@@ -1,2 +1,7 @@
 'use strict';
-module.exports = ['netease', 'xiami', 'qq', 'all'];
+module.exports = {
+    'netease': '网易云音乐',
+    'xiami': '虾米音乐',
+    'qq': 'QQ音乐',
+    'all': '所有'
+};
