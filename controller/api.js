@@ -4,6 +4,7 @@ const router = express.Router();
 const music = require('music-api');
 const MUSIC_SERVER = require('../enums/music_server');
 const STATUS_CODE = require('../enums/status');
+const tool = require('../modules/tool');
 
 exports.rootPath = '/api';
 /**
@@ -29,7 +30,7 @@ router.get('/search/song', function(req, res, next) {
         page,
         raw: false
     }).then(function(data) {
-        res.send(data);
+        res.send(tool.buildResData(data));
     }).catch(next);
 });
 /**
@@ -52,7 +53,7 @@ router.get('/get/song', function(req, res, next) {
         id,
         raw: false
     }).then(function(data) {
-        res.send(data);
+        res.send(tool.buildResData(data));
     }).catch(next);
 });
 
