@@ -2,6 +2,5 @@
 module.exports = {
     'netease': '网易云音乐',
     'xiami': '虾米音乐',
-    'qq': 'QQ音乐',
-    'all': '所有'
+    'qq': 'QQ音乐'
 };

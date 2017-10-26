@@ -3,7 +3,7 @@ const express = require('express');
 const path = require('path');
 const webpack = require('webpack');
 const proxyMiddleware = require('http-proxy-middleware');
-const webpackConfig = require('./webpack.config.js');
+const webpackConfig = require('./webpack.dev.config.js');
 const proxyConfig = require('./proxy');
 
 const app = express();
@@ -37,5 +37,5 @@ Object.keys(proxyConfig).forEach(function (context) {
 app.use(devMiddleware);
 app.use(hotMiddleware);
 //设置静态目录
-app.use('./dist', express.static(path.join(__dirname, '/dist')));
+app.use('./public', express.static(path.join(__dirname, '/public')));
 app.listen('8080');

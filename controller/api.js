@@ -30,7 +30,7 @@ router.get('/search/song', function(req, res, next) {
         page,
         raw: false
     }).then(function(data) {
-        res.send(tool.buildResData(data));
+        res.send(tool.buildResSongData(data, vendor));
     }).catch(next);
 });
 /**
@@ -53,7 +53,7 @@ router.get('/get/song', function(req, res, next) {
         id,
         raw: false
     }).then(function(data) {
-        res.send(tool.buildResData(data));
+        res.send(tool.buildResSongData(data));
     }).catch(next);
 });
 
