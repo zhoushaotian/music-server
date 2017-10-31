@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-export const UPDATE_DETAIL = 'UPDATE_DETAIL';
+export const UPDATE_URL = 'UPDATE_URL';
 export const CLEAN_DETAIL = 'CLEAN_DETAIL';
 export const UPDATE_LOADING = 'UPDATE_LOADING';
 
@@ -10,9 +10,9 @@ export function updateLoading(data) {
         data
     };
 }
-export function updateDetail(data) {
+export function updateUrl(data) {
     return {
-        type: UPDATE_DETAIL,
+        type: UPDATE_URL,
         data
     };
 }
@@ -23,7 +23,7 @@ export function getSongdetail(data) {
             params: data.id,
             server: data.server
         }).then(function(res) {
-            dispatch(updateDetail(res.data));    
+            dispatch(updateUrl(res.data.url));    
         });
     };
 }

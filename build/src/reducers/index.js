@@ -1,11 +1,13 @@
 import {combineReducers } from 'redux';
 
-import list from './list';
-import detail from './detail';
+import list from './list.js';
+import detail from './detail.js';
+import user from './user.js';
 
 const appReducer = combineReducers({
     list,
-    detail
+    detail,
+    user
 });
 
 export default appReducer;

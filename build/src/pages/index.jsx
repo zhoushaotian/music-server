@@ -6,7 +6,11 @@ import {Row, Col, Select, Input, Layout, Table, Button, message, Modal} from 'an
 import MUSIC_SERVER from '../../../enums/music_server';
 import axios from 'axios';
 
+import {getUser, login, updateShowLogin, cancelUser, updateShowSignUp, signUp, updateShowPlayer} from '../actions/user.js';
+import TopBar from '../compoents/top_bar';
+import Login from '../compoents/login';
 import MusicPlayer from '../compoents/music_player';
+import SignUp from '../compoents/signup';
 
 const Option = Select.Option;
 const Search = Input.Search;
@@ -16,7 +20,8 @@ function mapProps(state) {
         loading: state.list.loading,
         list: state.list.list,
         currentPage: state.list.currentPage,
-        total: state.list.total
+        total: state.list.total,
+        user: state.user
     };
 }
 class Demo extends React.Component {
@@ -24,22 +29,56 @@ class Demo extends React.Component {
         super();
         this.state = {
             searchKey: '',
-            server: 'netease',
-            currentUrl: '',
-            songName: '',
-            artist: '',
-            imgSrc: '',
-            showPlayer: false
+            server: 'netease'
         };
         this.handleSearchChange = this.handleSearchChange.bind(this);
         this.handleServerChange = this.handleServerChange.bind(this);
         this.handleGetSong = this.handleGetSong.bind(this);
         this.handleAlertClose = this.handleAlertClose.bind(this);
+        this.handleCancelLogin = this.handleCancelLogin.bind(this);
+        this.handleClickLogin = this.handleClickLogin.bind(this);
+        this.handleLogin = this.handleLogin.bind(this);
+        this.handleClickEsc = this.handleClickEsc.bind(this);
+        this.handleCancelSign = this.handleCancelSign.bind(this);
+        this.handleClickSignUp = this.handleClickSignUp.bind(this);
+        this.handleSignUp = this.handleSignUp.bind(this);
+        this.handleClickShowPlayer = this.handleClickShowPlayer.bind(this);
+    }
+    handleClickShowPlayer() {
+        const {dispatch} = this.props;
+        dispatch(updateShowPlayer(true));
+    }
+    handleSignUp(values) {
+        const {dispatch} = this.props;
+        dispatch(signUp(values));
+    }
+    handleClickSignUp() {
+        const {dispatch} = this.props;
+        dispatch(updateShowSignUp(true));
+    }
+    handleCancelSign() {
+        const {dispatch} = this.props;
+        dispatch(updateShowSignUp(false));
+    }
+    handleClickEsc() {
+        const {dispatch} = this.props;
+        dispatch(cancelUser());
+    }
+    handleClickLogin() {
+        const {dispatch} = this.props;
+        dispatch(updateShowLogin(true));
+    }
+    handleLogin(values) {
+        const {dispatch} = this.props;
+        dispatch(login(values));
+    }
+    handleCancelLogin() {
+        const {dispatch} = this.props;
+        dispatch(updateShowLogin(false));
     }
     handleAlertClose() {
-        this.setState({
-            showPlayer: false
-        });
+        const {dispatch} = this.props;
+        dispatch(updateShowPlayer(false));
     }
     handleGetSong(id, songName, artist, imgSrc) {
         const {server} = this.state;
@@ -98,6 +137,8 @@ class Demo extends React.Component {
         }));
     }
     componentDidMount() {
+        const {dispatch} = this.props;
+        dispatch(getUser());
     }
     render() {
         const colums = [
@@ -122,12 +163,15 @@ class Demo extends React.Component {
                 }
             }
         ];
-        const {loading, list, total, currentPage} = this.props;
-        const {server, currentUrl, songName, artist, imgSrc, showPlayer} = this.state;
+        const {loading, list, total, currentPage, user} = this.props;
+        const {server} = this.state;
         return (
             <div className="index-wrapper">
                 <Layout>
                     <Header style={{backgroundColor: 'white'}}>
+                        <TopBar name={user.name} login={user.login} handleClickLogin = {this.handleClickLogin} handleClickEsc={this.handleClickEsc} handleClickSignUp={this.handleClickSignUp} handleClickShowPlayer={this.handleClickShowPlayer}/>
+                    </Header>
+                    <Content>
                         <Row type="flex" justify="center">
                             <Col lg={5}>
                                 <Select defaultValue={server} style={{width: '100%'}} onChange={this.handleServerChange}>
@@ -147,8 +191,6 @@ class Demo extends React.Component {
                                 />    
                             </Col>
                         </Row>
-                    </Header>
-                    <Content>
                         <Row type="flex" justify="center">
                             <Col lg={15}>
                                 <Table loading={loading} columns={colums} dataSource={list} pagination={{
@@ -164,14 +206,17 @@ class Demo extends React.Component {
                     </Content>
                     <Footer>
                         <Modal
-                            visible={showPlayer}
+                            visible={user.showPlayer}
                             title="音乐详情"
                             footer={null}
                             onCancel={this.handleAlertClose}
+                            maskClosable={false}
 
                         >
-                            <MusicPlayer url={currentUrl} songName={songName} artist={artist} imgSrc={imgSrc}/>
+                            <MusicPlayer songList={user.songList}/>
                         </Modal>
+                        <Login showLogin={user.showLogin} handleCancel={this.handleCancelLogin} handleLogin={this.handleLogin} logining={user.loading}/>
+                        <SignUp showSignUp={user.showSignUp} handleCancel={this.handleCancelSign} handleSignUp = {this.handleSignUp} loading={user.loading}/>
                     </Footer>
                 </Layout>
             </div>
@@ -184,6 +229,7 @@ Demo.propTypes = {
     currentPage: propTypes.number,
     total: propTypes.number,
     dispatch: propTypes.func,
-    getState: propTypes.func
+    getState: propTypes.func,
+    user: propTypes.object
 };
 export default connect(mapProps)(Demo);

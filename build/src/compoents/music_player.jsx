@@ -1,14 +1,21 @@
 import React from 'react';
 import propTypes from 'prop-types';
+import { connect } from 'react-redux';
 import {Progress, Row, Col, Button} from 'antd';
 
 import '../style/music_player.less';
+function mapProps(state) {
+    return {
+        detail: state.detail
+    };
+}
 class MusicPlayer extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             currentTime: 0,
-            total: 1
+            total: 1,
+            songFlag: 0
         };
     }
     handlePlayStatus(status) {
@@ -27,11 +34,14 @@ class MusicPlayer extends React.Component {
         }, 1000);
     }
     render() {
-        const {url, songName, artist, imgSrc} = this.props;
-        const {total, currentTime} = this.state;
+        const {detail, songList} = this.props;
+        const {total, currentTime, songFlag} = this.state;
+        const songName = songList[songFlag] ? songList[songFlag].songName : '';
+        const artist = songList[songFlag] ? songList[songFlag].artist : '';
+        const img = songList[songFlag] ? songList[songFlag].img : '';
         return (
             <div className="player-wrapper">
-                <audio src={url} autoPlay="true" id="player"/>
+                <audio src={detail.url} autoPlay="true" id="player"/>
                 <Row type="flex" justify="center">
                     <Col lg={10}>
                         <span className="song-title">{songName}</span>
@@ -41,7 +51,7 @@ class MusicPlayer extends React.Component {
                 <Row type="flex" justify="center">
                     <Col lg={10}>
                         <div>
-                            <img src={imgSrc} alt="" className="player-cover"/>
+                            <img src={img} alt="" className="player-cover"/>
                         </div>
                     </Col>
                 </Row>
@@ -53,7 +63,7 @@ class MusicPlayer extends React.Component {
                         <Button type="primary" shape="circle" icon="pause" onClick={() => {this.handlePlayStatus(false);}}/>
                     </Col>
                     <Col lg={2}>
-                        <a href={url} target="__blank" download=""><Button type="primary" shape="circle" icon="download"></Button></a>
+                        <a href={detail.url} target="__blank" download=""><Button type="primary" shape="circle" icon="download"></Button></a>
                     </Col>
                 </Row>
                 <Row type="flex" justify="center">
@@ -72,9 +82,7 @@ class MusicPlayer extends React.Component {
     }
 }
 MusicPlayer.propTypes = {
-    url: propTypes.string,
-    songName: propTypes.string,
-    artist: propTypes.string,
-    imgSrc: propTypes.string
+    songList: propTypes.array,
+    detail: propTypes.object
 };
-export default MusicPlayer;
+export default connect(mapProps)(MusicPlayer);

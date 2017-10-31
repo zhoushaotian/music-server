@@ -1,15 +1,15 @@
-import {UPDATE_DETAIL, CLEAN_DETAIL, UPDATE_LOADING} from '../actions/detail';
+import {UPDATE_URL, CLEAN_DETAIL, UPDATE_LOADING} from '../actions/detail';
 
 const INIT_STATE = {
-    detail: {},
+    url: '',
     loading: false
 };
 
 export default function detail(state = INIT_STATE, action) {
     switch (action.type) {
-    case UPDATE_DETAIL:
+    case UPDATE_URL:
         return Object.assign({}, state, {
-            detail: action.data
+            url: action.data
         });
     case UPDATE_LOADING:
         return Object.assign({}, state, {
