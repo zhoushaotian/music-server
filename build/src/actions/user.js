@@ -4,11 +4,26 @@ import {message} from 'antd';
 export const GET_USER = 'GET_USER';
 export const UPDATE_USER = 'GET_USER';
 export const CLEAN_USER = 'CLEAN_USER';
-export const UPDATE_LOADING = 'UPDATE_LOADING';
+export const UPDATE_USER_LOADING = 'UPDATE_USER_LOADING';
 export const UPDATE_SHOWLOGIN = 'UPDATE_SHOWLOGIN';
 export const UPDATE_SHOWSIGNUP = 'UPDATE_SHOWSIGNUP';
 export const UPDATE_SONGLIST = 'UPDATE_SONGLIST';
 export const UPDATE_SHOWPLAYER = 'UPDATE_SHOWPLAYER';
+export const ADD_SONG_NO_SAVE = 'ADD_SONG_NO_SAVE';
+export const DELETE_SONG = 'DELETE_SONG';
+
+export function deleteSong(data) {
+    return {
+        type: DELETE_SONG,
+        data
+    };
+}
+export function addSongNoSave(data) {
+    return {
+        type: ADD_SONG_NO_SAVE,
+        data
+    };
+}
 
 export function updateShowPlayer(data) {
     return {
@@ -36,7 +51,7 @@ export function updateShowLogin(data) {
 }
 export function updateLoading(data) {
     return {
-        type: UPDATE_LOADING,
+        type: UPDATE_USER_LOADING,
         data
     };
 }
@@ -55,20 +70,28 @@ export function cleanUser() {
 
 export function cancelUser() {
     return function(dispatch) {
+        dispatch(updateLoading(true));
         axios.get('/api/cancel').then(function(res) {
             let data = res.data.data;
             if(data.success) {
                 message.success('注销成功');
+                dispatch(updateLoading(false));
                 return dispatch(cleanUser());
             }
+            dispatch(updateLoading(false));
             return message.error('注销失败');
         });
     };
 }
 export function getUser() {
     return function(dispatch) {
+        dispatch(updateLoading(true));
         axios.get('/api/user').then(function(res) {
             dispatch(updateUser(res.data.data));
+            if(res.data.data.login) {
+                dispatch(getSongList());
+            }
+            dispatch(updateLoading(false));
         });
     };
 }
@@ -84,6 +107,7 @@ export function login(user) {
             if(data.success) {
                 dispatch(updateLoading(false));
                 dispatch(updateShowLogin(false));
+                dispatch(getSongList());
                 console.log(data);
                 message.success(res.data.msg);
                 return dispatch(updateUser({
@@ -107,6 +131,7 @@ export function signUp(values) {
                 message.success('注册成功');
                 dispatch(updateLoading(false));
                 dispatch(updateShowSignUp(false));
+                dispatch(getSongList());
                 return dispatch(updateUser({
                     name: data.name,
                     login: true
@@ -119,12 +144,36 @@ export function signUp(values) {
 }
 export function getSongList() {
     return function(dispatch) {
+        dispatch(updateLoading(true));
         axios.get('/api/songlist').then(function(res) {
             let data = res.data.data;
             if(!data.success) {
+                dispatch(updateLoading(false));
                 return message.error('查询个人歌单失败');
             }
             dispatch(updateSongList(data.songList));
+            dispatch(updateLoading(false));
+        });
+    };
+}
+
+export function addSong(song) {
+    return function(dispatch) {
+        dispatch(updateLoading(true));
+        axios.post('/api/add/song', {
+            songId: song.id,
+            songName: song.name,
+            serverName: song.server,
+            artist: song.artist,
+            img: song.img
+        }).then(function(res) {
+            let data = res.data.data;
+            if(!data.success) {
+                dispatch(updateLoading(false));
+                return message.error('添加歌曲失败');
+            }
+            dispatch(getSongList());
+            dispatch(updateLoading(false));
         });
     };
 }

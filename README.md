@@ -15,3 +15,5 @@ songMap: userId songId
 
 - 已经完成后台数据库全部接口
 - 2017年10月31日 完成  前台登录注册以及session的界面 & store的重构 开始写播放列表
+- 2017年11月3日 完成前台页面 发现store设计有问题  开始重构store  主要是detail与songList的耦合问题 
+- react中阻止事件的冒泡:  合成事件   原生事件  

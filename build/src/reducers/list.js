@@ -1,4 +1,4 @@
-import {UPDATE_LIST, UPDATE_LOADING, CLEAN_LIST, UPDATE_CURRENT_PAGE, UPDATE_TOTAL} from '../actions/list';
+import {UPDATE_LIST, UPDATE_LIST_LOADING, CLEAN_LIST, UPDATE_CURRENT_PAGE, UPDATE_TOTAL} from '../actions/list';
 
 const INIT_SATE = {
     list: [],
@@ -12,7 +12,7 @@ export default function list(state = INIT_SATE, action) {
         return Object.assign({}, state, {
             list: action.data
         });
-    case UPDATE_LOADING:
+    case UPDATE_LIST_LOADING:
         return Object.assign({}, state, {
             loading: action.data
         });

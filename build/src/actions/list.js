@@ -2,7 +2,7 @@ import axios from 'axios';
 
 export const UPDATE_LIST = 'UPDATE_LIST';
 export const CLEAN_LIST = 'CLEAN_LIST';
-export const UPDATE_LOADING = 'UPDATE_LOADING';
+export const UPDATE_LIST_LOADING = 'UPDATE_LIST_LOADING';
 export const UPDATE_TOTAL = 'UPDATE_TOTAL'; 
 export const UPDATE_CURRENT_PAGE = 'UPDATE_CURRENT_PAGE';
 
@@ -22,7 +22,7 @@ export function updateCurrentPage(data) {
 
 export function updateLoading(data) {
     return {
-        type: UPDATE_LOADING,
+        type: UPDATE_LIST_LOADING,
         data
     };
 }

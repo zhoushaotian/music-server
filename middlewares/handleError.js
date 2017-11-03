@@ -14,6 +14,8 @@ function handleErrorMid(err, req, res, next) {
         res.status(err.status).send({
             msg: err.message
         });
+        console.log('API调用错误');
+        console.log(err.message);
         break;
     default:
         console.log('内部错误:');

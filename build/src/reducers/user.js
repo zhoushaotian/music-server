@@ -1,4 +1,4 @@
-import {CLEAN_USER, UPDATE_USER, UPDATE_LOADING, UPDATE_SHOWLOGIN, UPDATE_SHOWSIGNUP, UPDATE_SONGLIST, UPDATE_SHOWPLAYER} from '../actions/user';
+import {CLEAN_USER, UPDATE_USER, UPDATE_USER_LOADING, UPDATE_SHOWLOGIN, UPDATE_SHOWSIGNUP, UPDATE_SONGLIST, UPDATE_SHOWPLAYER, ADD_SONG_NO_SAVE, DELETE_SONG} from '../actions/user';
 
 const INIT_STATE = {
     name: '',
@@ -12,6 +12,15 @@ const INIT_STATE = {
 
 export default function user(state = INIT_STATE, action) {
     switch (action.type) {
+    case DELETE_SONG:
+        state.songList.splice(action.data, 1);
+        return Object.assign({}, state, {
+            songList: state.songList
+        });
+    case ADD_SONG_NO_SAVE:
+        return Object.assign({}, state, {
+            songList: [].concat(state.songList, [action.data])
+        });
     case UPDATE_SHOWPLAYER:
         return Object.assign({}, state, {
             showPlayer: action.data
@@ -28,7 +37,7 @@ export default function user(state = INIT_STATE, action) {
         return Object.assign({}, state, {
             showLogin: action.data
         });
-    case UPDATE_LOADING:
+    case UPDATE_USER_LOADING:
         return Object.assign({}, state, {
             loading: action.data
         });
