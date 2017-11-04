@@ -108,7 +108,6 @@ export function login(user) {
                 dispatch(updateLoading(false));
                 dispatch(updateShowLogin(false));
                 dispatch(getSongList());
-                console.log(data);
                 message.success(res.data.msg);
                 return dispatch(updateUser({
                     name: data.name,
@@ -116,7 +115,6 @@ export function login(user) {
                     login: true
                 }));
             }
-            console.log(res.data);
             dispatch(updateLoading(false));
             message.error(res.data.msg);
         });
