@@ -101,7 +101,6 @@ router.post('/login', bodyParser.json(), function(req, res, next) {
             login: true
         }, '已经登录'));
     }
-    console.log(req.body);
     let userName = req.body.userName;
     let passwd = sha1(req.body.passwd);
     user.queryUser(userName).then(function(result) {
@@ -110,7 +109,6 @@ router.post('/login', bodyParser.json(), function(req, res, next) {
                 success: false
             }, '用户名不存在'));
         }
-        console.log(result);
         if(result[0].passwd === passwd) {
             req.session.userId = result[0].userId;
             req.session.name = result[0].name;

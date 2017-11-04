@@ -62,7 +62,6 @@ class Demo extends React.Component {
         }));
     }
     handleDeleteClick(record, index) {
-        console.log('delete');
         const {dispatch, user} = this.props;
         if(user.login) {
             return dispatch(deleteSongLogin(record.songId));
