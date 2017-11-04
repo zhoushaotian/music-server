@@ -2,6 +2,7 @@ import {CLEAN_USER, UPDATE_USER, UPDATE_USER_LOADING, UPDATE_SHOWLOGIN, UPDATE_S
 
 const INIT_STATE = {
     name: '',
+    avatar: '',
     login: false,
     loading: false,
     showLogin: false,
@@ -46,6 +47,7 @@ export default function user(state = INIT_STATE, action) {
     case CLEAN_USER:
         return {
             name: '',
+            avatar: '',
             login: false,
             loading: false,
             showLogin: false,

@@ -5,7 +5,7 @@ import { searchSong } from '../actions/list';
 import { Row, Col, Select, Input, Layout, Table, Button, Modal } from 'antd';
 import MUSIC_SERVER from '../../../enums/music_server';
 
-import { getUser, login, updateShowLogin, cancelUser, updateShowSignUp, signUp, updateShowPlayer, addSongNoSave, addSong, deleteSong, updateLoading} from '../actions/user.js';
+import { getUser, login, updateShowLogin, cancelUser, updateShowSignUp, signUp, updateShowPlayer, addSongNoSave, addSong, deleteSong, updateLoading, deleteSongLogin} from '../actions/user.js';
 import { getSongdetail} from '../actions/detail';
 import TopBar from '../compoents/top_bar';
 import Login from '../compoents/login';
@@ -61,9 +61,12 @@ class Demo extends React.Component {
             currentSong: -1
         }));
     }
-    handleDeleteClick(index) {
+    handleDeleteClick(record, index) {
         console.log('delete');
-        const {dispatch} = this.props;
+        const {dispatch, user} = this.props;
+        if(user.login) {
+            return dispatch(deleteSongLogin(record.songId));
+        }
         dispatch(deleteSong(index));
     }
     handleClickRow(song, index) {
@@ -220,7 +223,7 @@ class Demo extends React.Component {
         return (
             <Layout style={{minHeight: '100vh'}}>
                 <Header style={{ backgroundColor: 'white' }}>
-                    <TopBar name={user.name} login={user.login} handleClickLogin={this.handleClickLogin} handleClickEsc={this.handleClickEsc} handleClickSignUp={this.handleClickSignUp} handleClickShowPlayer={this.handleClickShowPlayer} loading={user.loading}/>
+                    <TopBar avatar={user.avatar} name={user.name} login={user.login} handleClickLogin={this.handleClickLogin} handleClickEsc={this.handleClickEsc} handleClickSignUp={this.handleClickSignUp} handleClickShowPlayer={this.handleClickShowPlayer} loading={user.loading}/>
                 </Header>
                 <Layout style={{paddingTop: '5px'}}>
                     <Sider  breakpoint='sm' collapsedWidth={0} style={{zIndex: '1000'}}>

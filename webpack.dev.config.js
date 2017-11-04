@@ -7,7 +7,7 @@ const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const extractLESS = new ExtractTextPlugin('css/app.[chunkhash:8].min.css');
 const del = require('del');
 
-del([path.join(__dirname, '/public/**')]);
+
 module.exports = {
     entry: {
         app: ['./dev_client', path.resolve(__dirname, 'build/src/app.jsx')]

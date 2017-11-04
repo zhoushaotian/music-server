@@ -8,9 +8,9 @@ const STATUS_CODE = require('../enums/status');
 
 
 
-module.exports.creatUser = function(userName, passwd, name) {
+module.exports.creatUser = function(userName, passwd, name, avatar) {
     return new Promise(function(resolve, reject) {
-        pool.query('insert into user (userName,passwd,name) values (?,?,?)', [userName, passwd, name], function(err, results) {
+        pool.query('insert into user (userName,passwd,name,avatar) values (?,?,?,?)', [userName, passwd, name, avatar], function(err, results) {
             if(err) {
                 return reject(err);
             }

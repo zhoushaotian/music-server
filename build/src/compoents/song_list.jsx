@@ -39,14 +39,14 @@ class SongList extends React.Component {
             },
             {
                 render: (text, record, index) => {
-                    return <Icon type="close" onClick={(e) => {e.stopPropagation();this.handleDeleteClick(index);}}/>;
+                    return <Icon type="close" onClick={(e) => {e.stopPropagation();this.handleDeleteClick(record, index);}}/>;
                 }
             }
         ];
         return (
             <Table columns={columns} dataSource={songList} showHeader={false} pagination={false} className="songlist-wrapper" 
                 onRowClick={this.handleClickRow}
-                rowKey='key'
+                rowKey='songId'
                 size='small'
                 loading={loading}
                 locale={{

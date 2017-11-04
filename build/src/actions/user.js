@@ -112,6 +112,7 @@ export function login(user) {
                 message.success(res.data.msg);
                 return dispatch(updateUser({
                     name: data.name,
+                    avatar: data.avatar,
                     login: true
                 }));
             }
@@ -134,6 +135,7 @@ export function signUp(values) {
                 dispatch(getSongList());
                 return dispatch(updateUser({
                     name: data.name,
+                    avatar: data.avatar,
                     login: true
                 }));
             }
@@ -174,6 +176,23 @@ export function addSong(song) {
             }
             dispatch(getSongList());
             dispatch(updateLoading(false));
+        });
+    };
+}
+
+export function deleteSongLogin(songId) {
+    return function(dispatch) {
+        dispatch(updateLoading(true));
+        axios.post('/api/delete/song', {
+            songId
+        }).then(function(res) {
+            let data = res.data.data;
+            if(data.success) {
+                dispatch(updateLoading(false));
+                return dispatch(getSongList());
+            }
+            message.error('删除歌曲失败');
+            return dispatch(updateLoading(false));
         });
     };
 }

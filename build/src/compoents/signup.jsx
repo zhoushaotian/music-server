@@ -1,7 +1,9 @@
 import React from 'react';
 import propTypes from 'prop-types';
 
-import { Modal, Form, Input, Spin } from 'antd';
+import { Modal, Form, Input, Spin} from 'antd';
+
+import AvatarUpload from './avatar_upload';
 const FormItem = Form.Item;
 class SignUp extends React.Component {
     constructor(props) {
@@ -12,6 +14,7 @@ class SignUp extends React.Component {
         const { handleSignUp, form } = this.props;
         const { validateFields } = form;
         validateFields((err, values) => {
+            console.log(values);
             if (err) {
                 return;
             }
@@ -98,6 +101,16 @@ class SignUp extends React.Component {
                                     ]
                                 })(
                                     <Input type="text" />
+                                )
+                            }
+                        </FormItem>
+                        <FormItem label="头像">
+                            {
+                                getFieldDecorator('avatar')(
+                                    <AvatarUpload
+                                        action='/api/upload/avatar'
+                                        name='avatar'
+                                    />
                                 )
                             }
                         </FormItem>

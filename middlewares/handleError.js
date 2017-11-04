@@ -18,6 +18,7 @@ function handleErrorMid(err, req, res, next) {
         console.log(err.message);
         break;
     default:
+        console.log(req.path);
         console.log('内部错误:');
         console.log(err.message);
         res.status(500).send({

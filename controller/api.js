@@ -4,6 +4,21 @@ const router = express.Router();
 const music = require('music-api');
 const bodyParser = require('body-parser');
 const sha1 = require('sha1');
+const uuidv1 = require('uuid/v1');
+const multer = require('multer');
+
+const storage = multer.diskStorage({
+    destination: function(req, file, cb) {
+        cb(null, path.resolve('public', 'img'));
+    },
+    filename: function(req, file, cb) {
+        cb(null, uuidv1() + '.' + 'jpg');
+    }
+});
+const upload = multer({storage}).single('avatar');
+const path = require('path');
+
+
 
 const MUSIC_SERVER = require('../enums/music_server');
 const STATUS_CODE = require('../enums/status');
@@ -11,6 +26,7 @@ const tool = require('../modules/tool');
 const checkLoginMid = require('../middlewares/check').checkLogin;
 const user = require('../model/user');
 exports.rootPath = '/api';
+
 /**
  * 查询歌曲
  */
@@ -67,6 +83,7 @@ router.get('/user', function(req, res) {
     if(req.session.userId) {
         return res.send(tool.buildResData({
             name: req.session.name,
+            avatar: req.session.avatar,
             login: true
         }, '获取登录状态成功'));
     }
@@ -93,12 +110,15 @@ router.post('/login', bodyParser.json(), function(req, res, next) {
                 success: false
             }, '用户名不存在'));
         }
+        console.log(result);
         if(result[0].passwd === passwd) {
             req.session.userId = result[0].userId;
             req.session.name = result[0].name;
+            req.session.avatar = result[0].avatar;
             return res.send(tool.buildResData({
                 success: true,
-                name: result[0].name
+                name: result[0].name,
+                avatar: result[0].avatar
             }, '登录成功'));
         }
         return res.send(tool.buildResData({
@@ -143,20 +163,23 @@ router.post('/signup', bodyParser.json(), function(req, res, next) {
     let userName = req.body.userName;
     let passwd = sha1(req.body.passwd);
     let name = req.body.name;
+    let avatar = req.body.avatar ? req.body.avatar : '/img/default.png';
     user.queryUser(userName).then(function(result) {
         if(result.length > 0) {
             return res.send(tool.buildResData({
                 success: false
             }, '用户已存在'));
         }
-        user.creatUser(userName, passwd, name).then(function(result) {
+        user.creatUser(userName, passwd, name, avatar).then(function(result) {
             // 写session
             req.session.name = name;
             req.session.userId = result.insertId;
+            req.session.avatar = avatar;
             console.log('新用户注册-userId:', req.session.userId);
             return res.send(tool.buildResData({
                 success: true,
-                name: name
+                name: name,
+                avatar: avatar
             }, '创建用户成功'));
         });
     }).catch(next);
@@ -223,6 +246,20 @@ router.get('/songlist', checkLoginMid, function(req, res, next) {
             songList: result
         }, '查询成功'));
     }).catch(next);
+});
+/**
+ * 上传用户头像
+ */
+router.post('/upload/avatar', function(req, res, next) {
+    upload(req, res, function(err) {
+        if(err) {
+            return next(err);
+        }
+        res.send(tool.buildResData({
+            path: `/img/${req.file.filename}`,
+            success: true
+        }));
+    });
 });
 exports.router = router;
 
