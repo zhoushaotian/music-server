@@ -221,7 +221,7 @@ class Demo extends React.Component {
         const { server } = this.state;
         return (
             <Layout style={{minHeight: '100vh'}}>
-                <Header style={{ backgroundColor: 'white' }}>
+                <Header style={{ backgroundColor: 'white', padding: '0'}}>
                     <TopBar avatar={user.avatar} name={user.name} login={user.login} handleClickLogin={this.handleClickLogin} handleClickEsc={this.handleClickEsc} handleClickSignUp={this.handleClickSignUp} handleClickShowPlayer={this.handleClickShowPlayer} loading={user.loading}/>
                 </Header>
                 <Layout style={{paddingTop: '5px'}}>

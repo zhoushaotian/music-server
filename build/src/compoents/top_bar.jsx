@@ -17,14 +17,14 @@ class TopBar extends React.Component {
                             <span>{login ? name : '未登陆'}</span>
                         </div>
                     </Col>
-                    <Col md={4} xs={3} sm={4}>
-                        <Button type="primary" ghost onClick={() => {handleClickShowPlayer();}}>打开音乐盒</Button>
+                    <Col md={4} xs={6} sm={4}>
+                        <Button type="primary" size='small' ghost onClick={() => {handleClickShowPlayer();}}>打开音乐盒</Button>
                     </Col>
                     <Col md={4} xs={6} sm={6}>
-                        {login ? <Button type="primary" ghost onClick={() => {handleClickEsc();}}>注销</Button> : <Button type="primary" ghost onClick={() => {handleClickLogin();}}>登录</Button>}
+                        {login ? <Button type="primary" size='small' ghost onClick={() => {handleClickEsc();}}>注销</Button> : <Button type="primary" ghost onClick={() => {handleClickLogin();}}>登录</Button>}
                     </Col>
                     <Col md={4} xs={6} sm={6}>
-                        <Button type="primary" ghost onClick={() => {handleClickSignUp();}}>注册</Button>
+                        <Button type="primary" size='small' ghost onClick={() => {handleClickSignUp();}}>注册</Button>
                     </Col>
                 </Row>
             </Spin>
