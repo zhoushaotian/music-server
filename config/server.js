@@ -8,7 +8,7 @@ module.exports = {
     mysqlOption: {
         host: 'localhost',
         user: 'root',
-        password: '80239511',
+        password: 'haiyouwo',
         database: 'music_server'
     }
 };
