@@ -25,6 +25,7 @@ const STATUS_CODE = require('../enums/status');
 const tool = require('../modules/tool');
 const checkLoginMid = require('../middlewares/check').checkLogin;
 const user = require('../model/user');
+const notes = require('../model/notes');
 exports.rootPath = '/api';
 
 /**
@@ -258,6 +259,88 @@ router.post('/upload/avatar', function(req, res, next) {
             success: true
         }));
     });
+});
+/**
+ * 添加评论
+ */
+router.post('/add/note', checkLoginMid, bodyParser.json(), function(req, res, next) {
+    if(!req.body.msg) {
+        let err = new Error('缺少评论信息');
+        err.status = STATUS_CODE.API_ERROR;
+        return next(err);
+    }
+    let time = new Date().getTime();
+    notes.addNote(req.session.userId, {
+        time,
+        msg: req.body.msg
+    }).then(function() {
+        return res.send(tool.buildResData({
+            success: true
+        }, '评论成功'));
+    }).catch(next);
+});
+/**
+ * 查看评论
+ */
+router.get('/get/note', function(req, res, next) {
+    if(!req.query.currentPage) {
+        let err = new Error('缺少分页参数');
+        err.status = STATUS_CODE.API_ERROR;
+        return next(err);
+    }
+    if(!req.query.pages) {
+        let err = new Error('缺少分页参数');
+        err.status = STATUS_CODE.API_ERROR;
+        return next(err);
+    }
+    if(Number.isNaN(parseInt(req.query.currentPage)) || Number.isNaN(parseInt(req.query.pages))) {
+        let err = new Error('参数错误');
+        err.status = STATUS_CODE.API_ERROR;
+        return next(err);
+    }
+    Promise.all([notes.queryNoteTotal(), notes.getNotes(parseInt(req.query.currentPage), parseInt(req.query.pages))])
+        .then(function(result) {
+            console.log(result[1]);
+            for(let note of result[1]) {
+                if(parseInt(note.userId) === req.session.userId) {
+                    note.own = true;
+                }else {
+                    note.own = false;
+                }
+            }
+            res.send(tool.buildResData({
+                success: true,
+                data: result[1],
+                total: result[0][0]['count(*)']
+            }));
+        }).catch(next);
+});
+/**
+ * 删除评论
+ */
+router.post('/delete/note', checkLoginMid, bodyParser.json(), function(req, res, next) {
+    if(!req.body.id) {
+        let err = new Error('缺少评论ID');
+        err.status = STATUS_CODE.API_ERROR;
+        return next(err);
+    }
+    notes.checkNote(req.body.id).then(function(userId) {
+        if(Number.isNaN(parseInt(req.body.id))) {
+            let err = new Error('参数错误');
+            err.status = STATUS_CODE.API_ERROR;
+            return next(err);
+        }
+        if(parseInt(userId) !== req.session.userId) {
+            let err = new Error('非该评论用户');
+            err.status = STATUS_CODE.API_ERROR;
+            return next(err);
+        }
+        notes.deleteNote(req.body.id).then(function() {
+            res.send(tool.buildResData({
+                success: true
+            }, '删除成功'));
+        }).catch(next);
+    }).catch(next);
 });
 exports.router = router;
 

@@ -12,6 +12,8 @@ import Login from '../compoents/login';
 import MusicPlayer from '../compoents/music_player';
 import SignUp from '../compoents/signup';
 import SongList from '../compoents/song_list';
+import Notes from '../compoents/notes';
+
 const Option = Select.Option;
 const Search = Input.Search;
 const { Header, Footer, Content, Sider } = Layout;
@@ -30,7 +32,8 @@ class Demo extends React.Component {
         super();
         this.state = {
             searchKey: '',
-            server: 'netease'
+            server: 'netease',
+            showNotes: true
         };
         this.handleSearchChange = this.handleSearchChange.bind(this);
         this.handleServerChange = this.handleServerChange.bind(this);
@@ -218,7 +221,7 @@ class Demo extends React.Component {
             }
         ];
         const { loading, list, total, currentPage, user, detail } = this.props;
-        const { server } = this.state;
+        const { server, showNotes } = this.state;
         return (
             <Layout style={{minHeight: '100vh'}}>
                 <Header style={{ backgroundColor: 'white', padding: '0'}}>
@@ -229,39 +232,43 @@ class Demo extends React.Component {
                         <SongList songList={user.songList} currentIndex={detail.currentSong} handleClickRow={this.handleClickRow} handleDeleteClick={this.handleDeleteClick} loading={user.loading}/>
                     </Sider>
                     <Layout>
-                        <Content>
-                            <Row type="flex" justify="center">
-                                <Col lg={5}>
-                                    <Select defaultValue={server} style={{ width: '100%' }} onChange={this.handleServerChange}>
-                                        {Object.keys(MUSIC_SERVER).map(function (server, index) {
-                                            return (
-                                                <Option key={index} value={server}>{MUSIC_SERVER[server]}</Option>
-                                            );
-                                        })}
-                                    </Select>
-                                </Col>
-                                <Col lg={10}>
-                                    <Search
-                                        placeholder="请输入要查询的关键字"
-                                        style={{ width: '100%' }}
-                                        defaultValue={''}
-                                        onSearch={this.handleSearchChange}
-                                    />
-                                </Col>
-                            </Row>
-                            <Row type="flex" justify="center">
-                                <Col lg={15}>
-                                    <Table loading={loading} columns={colums} dataSource={list} pagination={{
-                                        current: currentPage,
-                                        total,
-                                        pageSize: 10,
-                                        onChange: (page) => { this.handlePageChange(page); }
-                                    }} locale={{
-                                        emptyText: '输入你的关键词搜索歌曲'
-                                    }} />
-                                </Col>
-                            </Row>
-                        </Content>
+                        {
+                            showNotes ? (<Content>
+                                <Notes />
+                            </Content>) : (<Content>
+                                <Row type="flex" justify="center">
+                                    <Col lg={5}>
+                                        <Select defaultValue={server} style={{ width: '100%' }} onChange={this.handleServerChange}>
+                                            {Object.keys(MUSIC_SERVER).map(function (server, index) {
+                                                return (
+                                                    <Option key={index} value={server}>{MUSIC_SERVER[server]}</Option>
+                                                );
+                                            })}
+                                        </Select>
+                                    </Col>
+                                    <Col lg={10}>
+                                        <Search
+                                            placeholder="请输入要查询的关键字"
+                                            style={{ width: '100%' }}
+                                            defaultValue={''}
+                                            onSearch={this.handleSearchChange}
+                                        />
+                                    </Col>
+                                </Row>
+                                <Row type="flex" justify="center">
+                                    <Col lg={15}>
+                                        <Table loading={loading} columns={colums} dataSource={list} pagination={{
+                                            current: currentPage,
+                                            total,
+                                            pageSize: 10,
+                                            onChange: (page) => { this.handlePageChange(page); }
+                                        }} locale={{
+                                            emptyText: '输入你的关键词搜索歌曲'
+                                        }} />
+                                    </Col>
+                                </Row>
+                            </Content>)
+                        }
                     </Layout>
                 </Layout>
                 <Footer>
