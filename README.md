@@ -18,7 +18,7 @@ songMap: userId songId
 - 2017年11月3日 完成前台页面 发现store设计有问题  开始重构store  主要是detail与songList的耦合问题 
 - react中阻止事件的冒泡:  合成事件   原生事件  
 - 2017年11月4日 完成version2.0的基本功能  
-## todo: 增加一个个人主页模块 created at 2017.11.27  
+## todo: 增加一个留言模块 created at 2017.11.27  
 功能:  
 - 留言  
 - 评论  
