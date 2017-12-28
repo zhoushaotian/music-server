@@ -342,5 +342,13 @@ router.post('/delete/note', checkLoginMid, bodyParser.json(), function(req, res,
         }).catch(next);
     }).catch(next);
 });
+// 获取推荐歌曲
+router.get('/suggest/song', function(req, res) {
+    music.getSuggestSongs('qq', {
+        limit: 10
+    }).then(function(result) {
+        res.send(result);
+    });
+});
 exports.router = router;
 
