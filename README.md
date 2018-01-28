@@ -25,4 +25,43 @@ songMap: userId songId
 完成接口 finished at 2017.11.30
 完成功能 finished at 2017.12.2  
 ## todo: 项目已作为毕业设计，开始重构代码 created at 2018.1.25 
-
+### 功能点  
+1. 界面全部重写，仿照网易云音乐，左侧sider固定，顶部为登录信息，底部为播放控制器，右侧为内容展示。
+2. 重构数据库，增加用户歌单。个人信息页增加字段，参照netease。
+3. 增加登录页。未登录用户进入直接跳转登录注册页。 
+### daily
+完成登录页面 之后还需完善按需加载 finished at 2018.1.27
+### 数据库重构
+#### user  
+字段|含义|类型
+-|-|-|
+userName|用户名|var
+passwd|密码(已加密)|var
+name|昵称|var
+avatar|头像路径|var
+userId|用户ID(自增)|int
+time|创建时间|int
+bio|个人签名|var
+sex|性别|int
+favoriteList|用户最喜欢歌曲表id|int
+#### 歌单表
+歌单表:
+字段|含义|类型
+-|-|-|
+name|歌单名|var|
+id|歌单ID|int|
+time|创建时间|var|
+img|歌单封面|var|
+by|创建者Id|int|
+#### songmap
+字段|含义|类型
+-|-|-|
+songId|歌曲ID|var|
+songName|歌曲名|var|
+serverName|服务源|var|
+artist|作者|var|
+img|歌曲封面|var|
+songListId|所属歌单Id|int|
+### notice  
+1. 发现之前写的devserver缺少html5history路由,查了一下vue-cli，已经换成webpack的devserver。see https://github.com/vuejs-templates/webpack/blob/develop/template/build/webpack.dev.conf.js#L24
+2. antd组件库更新至 3.x.x

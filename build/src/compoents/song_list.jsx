@@ -45,7 +45,7 @@ class SongList extends React.Component {
         ];
         return (
             <Table columns={columns} dataSource={songList} showHeader={false} pagination={false} className="songlist-wrapper" 
-                onRowClick={this.handleClickRow}
+                onRow={this.handleClickRow}
                 rowKey='songId'
                 size='small'
                 loading={loading}

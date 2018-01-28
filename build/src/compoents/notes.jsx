@@ -19,7 +19,8 @@ function timeConvert(time) {
 }
 function mapProps(state) {
     return {
-        notes: state.notes
+        notes: state.notes,
+        user: state.user
     };
 }
 class Notes extends React.Component {
@@ -77,9 +78,12 @@ class Notes extends React.Component {
     }
     handleCommitClick() {
         const {comment, currentPage} = this.state;
-        const {dispatch} = this.props;
+        const {dispatch, user} = this.props;
         if(!comment) {
             return message.error('请输入评论内容');
+        }
+        if(!user.login) {
+            return message.error('还未登录');
         }
         dispatch(commit(comment, currentPage, 8));
     }
@@ -96,6 +100,7 @@ class Notes extends React.Component {
 }
 Notes.propTypes = {
     notes: propTypes.object,
-    dispatch: propTypes.func
+    dispatch: propTypes.func,
+    user: propTypes.object
 };
 export default connect(mapProps)(Notes);

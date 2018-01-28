@@ -8,19 +8,19 @@ const uuidv1 = require('uuid/v1');
 const multer = require('multer');
 
 const storage = multer.diskStorage({
-    destination: function(req, file, cb) {
+    destination: function (req, file, cb) {
         cb(null, path.resolve('public', 'img'));
     },
-    filename: function(req, file, cb) {
+    filename: function (req, file, cb) {
         cb(null, uuidv1() + '.' + 'jpg');
     }
 });
-const upload = multer({storage}).single('avatar');
+const upload = multer({ storage }).single('avatar');
 const path = require('path');
 
 
 
-const MUSIC_SERVER = require('../enums/music_server');
+const MUSIC_SERVER = require('../enums/music_server').server;
 const STATUS_CODE = require('../enums/status');
 const tool = require('../modules/tool');
 const checkLoginMid = require('../middlewares/check').checkLogin;
@@ -31,13 +31,13 @@ exports.rootPath = '/api';
 /**
  * 查询歌曲
  */
-router.get('/search/song', function(req, res, next) {
-    if(!req.query.key) {
+router.get('/search/song', function (req, res, next) {
+    if (!req.query.key) {
         let err = new Error('缺少必要参数');
         err.status = STATUS_CODE.API_ERROR;
         return next(err);
     }
-    if(Object.keys(MUSIC_SERVER).indexOf(req.query.server) === -1) {
+    if (Object.keys(MUSIC_SERVER).indexOf(req.query.server) === -1) {
         let err = new Error('缺少必要参数');
         err.status = STATUS_CODE.API_ERROR;
         return next(err);
@@ -50,20 +50,20 @@ router.get('/search/song', function(req, res, next) {
         limit: 10,
         page,
         raw: false
-    }).then(function(data) {
+    }).then(function (data) {
         res.send(tool.buildResSongData(data, vendor));
     }).catch(next);
 });
 /**
  * 根据songId获取歌曲地址
  */
-router.get('/get/song', function(req, res, next) {
-    if(!req.query.id) {
+router.get('/get/song', function (req, res, next) {
+    if (!req.query.id) {
         let err = new Error('缺少必要参数');
         err.status = STATUS_CODE.API_ERROR;
         return next(err);
     }
-    if(Object.keys(MUSIC_SERVER).indexOf(req.query.server) === -1) {
+    if (Object.keys(MUSIC_SERVER).indexOf(req.query.server) === -1) {
         let err = new Error('缺少必要参数');
         err.status = STATUS_CODE.API_ERROR;
         return next(err);
@@ -73,15 +73,15 @@ router.get('/get/song', function(req, res, next) {
     music.getSong(vendor, {
         id,
         raw: false
-    }).then(function(data) {
+    }).then(function (data) {
         res.send(tool.buildResSongData(data));
     }).catch(next);
 });
 /**
  * 获取登录信息
  */
-router.get('/user', function(req, res) {
-    if(req.session.userId) {
+router.get('/user', function (req, res) {
+    if (req.session.userId) {
         return res.send(tool.buildResData({
             name: req.session.name,
             avatar: req.session.avatar,
@@ -96,41 +96,52 @@ router.get('/user', function(req, res) {
 /**
  * 登录
  */
-router.post('/login', bodyParser.json(), function(req, res, next) {
-    if(req.session.userId) {
-        return res.send(tool.buildResData({
-            login: true
-        }, '已经登录'));
-    }
-    let userName = req.body.userName;
-    let passwd = sha1(req.body.passwd);
-    user.queryUser(userName).then(function(result) {
-        if(result.length === 0) {
+router.post('/login', bodyParser.json(), function (req, res, next) {
+    function login() {
+        let userName = req.body.userName;
+        let passwd = sha1(req.body.passwd);
+        user.queryUser(userName).then(function (result) {
+            if (result.length === 0) {
+                return res.send(tool.buildResData({
+                    success: false
+                }, '用户名不存在'));
+            }
+            if (result[0].passwd === passwd) {
+                req.session.userId = result[0].userId;
+                req.session.name = result[0].name;
+                req.session.avatar = result[0].avatar;
+                return res.send(tool.buildResData({
+                    success: true,
+                    name: result[0].name,
+                    avatar: result[0].avatar
+                }, '登录成功'));
+            }
             return res.send(tool.buildResData({
                 success: false
-            }, '用户名不存在'));
-        }
-        if(result[0].passwd === passwd) {
-            req.session.userId = result[0].userId;
-            req.session.name = result[0].name;
-            req.session.avatar = result[0].avatar;
-            return res.send(tool.buildResData({
-                success: true,
-                name: result[0].name,
-                avatar: result[0].avatar
-            }, '登录成功'));
-        }
-        return res.send(tool.buildResData({
-            success: false
-        }, '密码错误'));
-    }).catch(next);
+            }, '密码错误'));
+        }).catch(next);
+    }
+    if (req.session.userId) {
+        // 先清空之前的登录状态
+        req.session.regenerate(function(err) {
+            if(err) {
+                return res.send(tool.buildResData({
+                    success: false
+                }, '登录失败'));
+            }
+            login();
+        });
+    }else {
+        login();
+    }
+
 });
 /**
  * 用户注销
  */
-router.get('/cancel', function(req, res) {
-    req.session.destroy(function(err) {
-        if(err) {
+router.get('/cancel', function (req, res) {
+    req.session.destroy(function (err) {
+        if (err) {
             return res.send(tool.buildResData({
                 succcess: false
             }, '注销失败'));
@@ -143,18 +154,18 @@ router.get('/cancel', function(req, res) {
 /**
  * 注册用户
  */
-router.post('/signup', bodyParser.json(), function(req, res, next) {
-    if(!req.body.userName) {
+router.post('/signup', bodyParser.json(), function (req, res, next) {
+    if (!req.body.userName) {
         let err = new Error('缺少用户名');
         err.status = STATUS_CODE.API_ERROR;
         return next(err);
     }
-    if(!req.body.passwd) {
+    if (!req.body.passwd) {
         let err = new Error('缺少密码');
         err.status = STATUS_CODE.API_ERROR;
         return next(err);
     }
-    if(!req.body.name) {
+    if (!req.body.name) {
         let err = new Error('缺少昵称');
         err.status = STATUS_CODE.API_ERROR;
         return next(err);
@@ -163,13 +174,13 @@ router.post('/signup', bodyParser.json(), function(req, res, next) {
     let passwd = sha1(req.body.passwd);
     let name = req.body.name;
     let avatar = req.body.avatar ? req.body.avatar : '/img/default.png';
-    user.queryUser(userName).then(function(result) {
-        if(result.length > 0) {
+    user.queryUser(userName).then(function (result) {
+        if (result.length > 0) {
             return res.send(tool.buildResData({
                 success: false
             }, '用户已存在'));
         }
-        user.creatUser(userName, passwd, name, avatar).then(function(result) {
+        user.creatUser(userName, passwd, name, avatar).then(function (result) {
             // 写session
             req.session.name = name;
             req.session.userId = result.insertId;
@@ -187,14 +198,14 @@ router.post('/signup', bodyParser.json(), function(req, res, next) {
 /**
  * 添加歌曲到歌单
  */
-router.post('/add/song', checkLoginMid, bodyParser.json(), function(req, res, next) {
-    if(!req.body.songId) {
+router.post('/add/song', checkLoginMid, bodyParser.json(), function (req, res, next) {
+    if (!req.body.songId) {
         let err = new Error('缺少歌曲ID');
         err.status = STATUS_CODE.API_ERROR;
         return next(err);
     }
-    user.searchSong(req.session.userId, req.body.songId).then(function(result) {
-        if(result.length > 0) {
+    user.searchSong(req.session.userId, req.body.songId).then(function (result) {
+        if (result.length > 0) {
             return res.send(tool.buildResData({
                 success: false
             }, '歌曲已经存在'));
@@ -205,7 +216,7 @@ router.post('/add/song', checkLoginMid, bodyParser.json(), function(req, res, ne
             serverName: req.body.serverName,
             artist: req.body.artist,
             img: req.body.img
-        }).then(function() {
+        }).then(function () {
             return res.send(tool.buildResData({
                 success: true
             }, '添加成功'));
@@ -216,15 +227,15 @@ router.post('/add/song', checkLoginMid, bodyParser.json(), function(req, res, ne
 /**
  * 删除歌曲
  */
-router.post('/delete/song', checkLoginMid, bodyParser.json(), function(req, res, next) {
-    if(!req.body.songId) {
+router.post('/delete/song', checkLoginMid, bodyParser.json(), function (req, res, next) {
+    if (!req.body.songId) {
         let err = new Error('缺少歌曲ID');
         err.status = STATUS_CODE.API_ERROR;
         return next(err);
     }
-    user.delSong(req.session.userId, req.body.songId).then(function(result) {
+    user.delSong(req.session.userId, req.body.songId).then(function (result) {
         console.log(result);
-        if(result.affectedRows === 0) {
+        if (result.affectedRows === 0) {
             return res.send(tool.buildResData({
                 success: false
             }, '歌曲不存在'));
@@ -237,8 +248,8 @@ router.post('/delete/song', checkLoginMid, bodyParser.json(), function(req, res,
 /**
  * 查询用户的歌单
  */
-router.get('/songlist', checkLoginMid, function(req, res, next) {
-    user.querySongList(req.session.userId).then(function(result) {
+router.get('/songlist', checkLoginMid, function (req, res, next) {
+    user.querySongList(req.session.userId).then(function (result) {
         console.log(result);
         res.send(tool.buildResData({
             success: true,
@@ -249,9 +260,9 @@ router.get('/songlist', checkLoginMid, function(req, res, next) {
 /**
  * 上传用户头像
  */
-router.post('/upload/avatar', function(req, res, next) {
-    upload(req, res, function(err) {
-        if(err) {
+router.post('/upload/avatar', function (req, res, next) {
+    upload(req, res, function (err) {
+        if (err) {
             return next(err);
         }
         res.send(tool.buildResData({
@@ -263,8 +274,8 @@ router.post('/upload/avatar', function(req, res, next) {
 /**
  * 添加评论
  */
-router.post('/add/note', checkLoginMid, bodyParser.json(), function(req, res, next) {
-    if(!req.body.msg) {
+router.post('/add/note', checkLoginMid, bodyParser.json(), function (req, res, next) {
+    if (!req.body.msg) {
         let err = new Error('缺少评论信息');
         err.status = STATUS_CODE.API_ERROR;
         return next(err);
@@ -273,7 +284,7 @@ router.post('/add/note', checkLoginMid, bodyParser.json(), function(req, res, ne
     notes.addNote(req.session.userId, {
         time,
         msg: req.body.msg
-    }).then(function() {
+    }).then(function () {
         return res.send(tool.buildResData({
             success: true
         }, '评论成功'));
@@ -282,29 +293,29 @@ router.post('/add/note', checkLoginMid, bodyParser.json(), function(req, res, ne
 /**
  * 查看评论
  */
-router.get('/get/note', function(req, res, next) {
-    if(!req.query.currentPage) {
+router.get('/get/note', function (req, res, next) {
+    if (!req.query.currentPage) {
         let err = new Error('缺少分页参数');
         err.status = STATUS_CODE.API_ERROR;
         return next(err);
     }
-    if(!req.query.pages) {
+    if (!req.query.pages) {
         let err = new Error('缺少分页参数');
         err.status = STATUS_CODE.API_ERROR;
         return next(err);
     }
-    if(Number.isNaN(parseInt(req.query.currentPage)) || Number.isNaN(parseInt(req.query.pages))) {
+    if (Number.isNaN(parseInt(req.query.currentPage)) || Number.isNaN(parseInt(req.query.pages))) {
         let err = new Error('参数错误');
         err.status = STATUS_CODE.API_ERROR;
         return next(err);
     }
     Promise.all([notes.queryNoteTotal(), notes.getNotes(parseInt(req.query.currentPage), parseInt(req.query.pages))])
-        .then(function(result) {
+        .then(function (result) {
             console.log(result[1]);
-            for(let note of result[1]) {
-                if(parseInt(note.userId) === req.session.userId) {
+            for (let note of result[1]) {
+                if (parseInt(note.userId) === req.session.userId) {
                     note.own = true;
-                }else {
+                } else {
                     note.own = false;
                 }
             }
@@ -318,24 +329,24 @@ router.get('/get/note', function(req, res, next) {
 /**
  * 删除评论
  */
-router.post('/delete/note', checkLoginMid, bodyParser.json(), function(req, res, next) {
-    if(!req.body.id) {
+router.post('/delete/note', checkLoginMid, bodyParser.json(), function (req, res, next) {
+    if (!req.body.id) {
         let err = new Error('缺少评论ID');
         err.status = STATUS_CODE.API_ERROR;
         return next(err);
     }
-    notes.checkNote(req.body.id).then(function(userId) {
-        if(Number.isNaN(parseInt(req.body.id))) {
+    notes.checkNote(req.body.id).then(function (userId) {
+        if (Number.isNaN(parseInt(req.body.id))) {
             let err = new Error('参数错误');
             err.status = STATUS_CODE.API_ERROR;
             return next(err);
         }
-        if(parseInt(userId) !== req.session.userId) {
+        if (parseInt(userId) !== req.session.userId) {
             let err = new Error('非该评论用户');
             err.status = STATUS_CODE.API_ERROR;
             return next(err);
         }
-        notes.deleteNote(req.body.id).then(function() {
+        notes.deleteNote(req.body.id).then(function () {
             res.send(tool.buildResData({
                 success: true
             }, '删除成功'));
@@ -343,10 +354,10 @@ router.post('/delete/note', checkLoginMid, bodyParser.json(), function(req, res,
     }).catch(next);
 });
 // 获取推荐歌曲
-router.get('/suggest/song', function(req, res) {
+router.get('/suggest/song', function (req, res) {
     music.getSuggestSongs('qq', {
         limit: 10
-    }).then(function(result) {
+    }).then(function (result) {
         res.send(result);
     });
 });

@@ -53,3 +53,33 @@ td .ant-tag {
         font-size: 16px;
     }
 }
+#particle-wrapper{
+    position: absolute;
+    z-index: -1;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    #canvas{
+        width: 100%;
+        height: 100%
+    }
+}
+
+.login-dig{
+    position: absolute;
+    width: 300px;
+    z-index: 2;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    .no-login{
+        color: gray;
+        text-decoration: underline;
+    }
+    .ant-card{
+        background: none
+    }
+    .ant-card-head{
+        background: none;
+    }
+}

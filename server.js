@@ -34,6 +34,8 @@ Object.keys(proxyConfig).forEach(function (context) {
     }
     app.use(proxyMiddleware(options.filter || context, options));
 });
+// handle fallback for HTML5 history API
+app.use(require('connect-history-api-fallback')());
 app.use(devMiddleware);
 app.use(hotMiddleware);
 //设置静态目录

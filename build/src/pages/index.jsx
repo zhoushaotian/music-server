@@ -2,21 +2,15 @@ import React from 'react';
 import propTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { searchSong } from '../actions/list';
-import { Row, Col, Select, Input, Layout, Table, Button, Modal } from 'antd';
-import MUSIC_SERVER from '../../../enums/music_server';
+import { Layout, Menu, Icon } from 'antd';
 
-import { getUser, login, updateShowLogin, cancelUser, updateShowSignUp, signUp, updateShowPlayer, addSongNoSave, addSong, deleteSong, updateLoading, deleteSongLogin} from '../actions/user.js';
-import { getSongdetail} from '../actions/detail';
+import { getUser, login, updateShowLogin, cancelUser, updateShowSignUp, signUp, updateShowPlayer, addSongNoSave, addSong, deleteSong, updateLoading, deleteSongLogin } from '../actions/user.js';
+import { getSongdetail } from '../actions/detail';
 import TopBar from '../compoents/top_bar';
-import Login from '../compoents/login';
-import MusicPlayer from '../compoents/music_player';
-import SignUp from '../compoents/signup';
-import SongList from '../compoents/song_list';
-import Notes from '../compoents/notes';
+import { navigation } from '../../../enums/music_server';
 
-const Option = Select.Option;
-const Search = Input.Search;
-const { Header, Footer, Content, Sider } = Layout;
+const { SubMenu, Item } = Menu;
+const { Header, Sider, Content } = Layout;
 function mapProps(state) {
     return {
         loading: state.list.loading,
@@ -52,8 +46,8 @@ class Demo extends React.Component {
         this.handleListen = this.handleListen.bind(this);
     }
     handleListen(id, name, artist, img) {
-        const {dispatch} = this.props;
-        const {server} = this.state;
+        const { dispatch } = this.props;
+        const { server } = this.state;
         dispatch(updateShowPlayer(true));
         dispatch(getSongdetail({
             id,
@@ -65,14 +59,14 @@ class Demo extends React.Component {
         }));
     }
     handleDeleteClick(record, index) {
-        const {dispatch, user} = this.props;
-        if(user.login) {
+        const { dispatch, user } = this.props;
+        if (user.login) {
             return dispatch(deleteSongLogin(record.songId));
         }
         dispatch(deleteSong(index));
     }
     handleClickRow(song, index) {
-        const {dispatch} = this.props;
+        const { dispatch } = this.props;
         dispatch(updateLoading(true));
         dispatch(updateShowPlayer(true));
         dispatch(getSongdetail({
@@ -195,96 +189,37 @@ class Demo extends React.Component {
         dispatch(getUser());
     }
     render() {
-        const colums = [
-            {
-                title: '歌名',
-                dataIndex: 'name',
-            },
-            {
-                title: '专辑',
-                dataIndex: 'album.name',
-            },
-            {
-                title: '歌手',
-                dataIndex: 'artists[0].name',
-            },
-            {
-                title: '操作',
-                render: (song) => {
-                    return (
-                        <div>
-                            <Button icon="play-circle" onClick={() => { this.handleGetSong(song.id, song.name, song.artists[0].name, song.album.cover); }}>添加</Button>
-                            <Button icon="play-circle" onClick={() => {this.handleListen(song.id, song.name, song.artists[0].name, song.album.cover);}}>试听</Button>
-                        </div>
-                    );
-                }
-            }
-        ];
-        const { loading, list, total, currentPage, user, detail } = this.props;
-        const { server, showNotes } = this.state;
+        const { user } = this.props;
         return (
-            <Layout style={{minHeight: '100vh'}}>
-                <Header style={{ backgroundColor: 'white', padding: '0'}}>
-                    <TopBar avatar={user.avatar} name={user.name} login={user.login} handleClickLogin={this.handleClickLogin} handleClickEsc={this.handleClickEsc} handleClickSignUp={this.handleClickSignUp} handleClickShowPlayer={this.handleClickShowPlayer} loading={user.loading}/>
+            <Layout style={{ minHeight: '100vh' }}>
+                <Header style={{ backgroundColor: 'white', padding: '0' }}>
+                    <TopBar avatar={user.avatar} name={user.name} login={user.login} handleClickLogin={this.handleClickLogin} handleClickEsc={this.handleClickEsc} handleClickSignUp={this.handleClickSignUp} handleClickShowPlayer={this.handleClickShowPlayer} loading={user.loading} />
                 </Header>
-                <Layout style={{paddingTop: '5px'}}>
-                    <Sider  breakpoint='sm' collapsedWidth={0} style={{zIndex: '1000'}}>
-                        <SongList songList={user.songList} currentIndex={detail.currentSong} handleClickRow={this.handleClickRow} handleDeleteClick={this.handleDeleteClick} loading={user.loading}/>
+                <Layout style={{ paddingTop: '5px' }}>
+                    <Sider collapsible={true} breakpoint="lg">
+                        <Menu mode="vertical" defaultOpenKeys={['songList']}>
+                            {
+                                navigation.map((item) => {
+                                    if (item.dynamic) {
+                                        return (
+                                            <SubMenu key={item.key} title={<span><Icon type={item.icon}/><span>{item.title}</span></span>}>
+                                            </SubMenu>
+                                        );
+                                    }
+                                    return (
+                                        <Item key={item.key}>
+                                            {<span><Icon type={item.icon} /><span>{item.title}</span></span>}
+                                        </Item>
+                                    );
+                                })
+                            }
+                        </Menu>
                     </Sider>
                     <Layout>
-                        {
-                            showNotes ? (<Content>
-                                <Notes />
-                            </Content>) : (<Content>
-                                <Row type="flex" justify="center">
-                                    <Col lg={5}>
-                                        <Select defaultValue={server} style={{ width: '100%' }} onChange={this.handleServerChange}>
-                                            {Object.keys(MUSIC_SERVER).map(function (server, index) {
-                                                return (
-                                                    <Option key={index} value={server}>{MUSIC_SERVER[server]}</Option>
-                                                );
-                                            })}
-                                        </Select>
-                                    </Col>
-                                    <Col lg={10}>
-                                        <Search
-                                            placeholder="请输入要查询的关键字"
-                                            style={{ width: '100%' }}
-                                            defaultValue={''}
-                                            onSearch={this.handleSearchChange}
-                                        />
-                                    </Col>
-                                </Row>
-                                <Row type="flex" justify="center">
-                                    <Col lg={15}>
-                                        <Table loading={loading} columns={colums} dataSource={list} pagination={{
-                                            current: currentPage,
-                                            total,
-                                            pageSize: 10,
-                                            onChange: (page) => { this.handlePageChange(page); }
-                                        }} locale={{
-                                            emptyText: '输入你的关键词搜索歌曲'
-                                        }} />
-                                    </Col>
-                                </Row>
-                            </Content>)
-                        }
+                        <Content>
+                        </Content>
                     </Layout>
                 </Layout>
-                <Footer>
-                    <Modal
-                        visible={user.showPlayer}
-                        title="音乐详情"
-                        footer={null}
-                        onCancel={this.handleAlertClose}
-                        maskClosable={false}
-
-                    >
-                        <MusicPlayer songList={user.songList}/>
-                    </Modal>
-                    <Login showLogin={user.showLogin} handleCancel={this.handleCancelLogin} handleLogin={this.handleLogin} logining={user.loading} />
-                    <SignUp showSignUp={user.showSignUp} handleCancel={this.handleCancelSign} handleSignUp={this.handleSignUp} loading={user.loading} />
-                </Footer>
             </Layout>
         );
     }

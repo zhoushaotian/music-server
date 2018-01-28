@@ -1,5 +1,6 @@
 import axios from 'axios';
 import {message} from 'antd';
+import {browserHistory} from 'react-router';
 
 export const GET_USER = 'GET_USER';
 export const UPDATE_USER = 'GET_USER';
@@ -109,11 +110,12 @@ export function login(user) {
                 dispatch(updateShowLogin(false));
                 dispatch(getSongList());
                 message.success(res.data.msg);
-                return dispatch(updateUser({
+                dispatch(updateUser({
                     name: data.name,
                     avatar: data.avatar,
                     login: true
                 }));
+                return browserHistory.push('/');
             }
             dispatch(updateLoading(false));
             message.error(res.data.msg);
@@ -131,13 +133,14 @@ export function signUp(values) {
                 dispatch(updateLoading(false));
                 dispatch(updateShowSignUp(false));
                 dispatch(getSongList());
-                return dispatch(updateUser({
+                dispatch(updateUser({
                     name: data.name,
                     avatar: data.avatar,
                     login: true
                 }));
+                return browserHistory.push('/');
             }
-            message.error('注册失败');
+            message.error(res.data.msg);
             dispatch(updateLoading(false));
         });
     };
