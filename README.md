@@ -46,7 +46,8 @@ bio|个人签名|var
 sex|性别|int
 favoriteList|用户最喜欢歌曲表id|int
 #### 歌单表
-歌单表:
+歌单表:  
+
 字段|含义|类型
 -|-|-|
 name|歌单名|var|
