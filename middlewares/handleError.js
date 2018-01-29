@@ -12,7 +12,8 @@ function handleErrorMid(err, req, res, next) {
     switch (err.status) {
     case STATUS_CODE.API_ERROR:
         res.status(err.status).send({
-            msg: err.message
+            msg: err.message,
+            success: false
         });
         console.log('API调用错误');
         console.log(err.message);
@@ -22,7 +23,7 @@ function handleErrorMid(err, req, res, next) {
         console.log('内部错误:');
         console.log(err.message);
         res.status(500).send({
-            msg: '系统错误'
+            msg: '系统错误',
         });
         break;
     }

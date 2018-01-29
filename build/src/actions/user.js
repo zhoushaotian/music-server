@@ -9,6 +9,7 @@ export const UPDATE_USER_LOADING = 'UPDATE_USER_LOADING';
 export const UPDATE_SHOWLOGIN = 'UPDATE_SHOWLOGIN';
 export const UPDATE_SHOWSIGNUP = 'UPDATE_SHOWSIGNUP';
 export const UPDATE_SONGLIST = 'UPDATE_SONGLIST';
+export const UPDATE_MARKSONGLIST = 'UPDATE_MARKSONGLIST';
 export const UPDATE_SHOWPLAYER = 'UPDATE_SHOWPLAYER';
 export const ADD_SONG_NO_SAVE = 'ADD_SONG_NO_SAVE';
 export const DELETE_SONG = 'DELETE_SONG';
@@ -35,6 +36,12 @@ export function updateShowPlayer(data) {
 export function updateSongList(data) {
     return {
         type: UPDATE_SONGLIST,
+        data
+    };
+}
+export function updateMarkSongList(data) {
+    return {
+        type: UPDATE_MARKSONGLIST,
         data
     };
 }
@@ -155,6 +162,7 @@ export function getSongList() {
                 return message.error('查询个人歌单失败');
             }
             dispatch(updateSongList(data.songList));
+            dispatch(updateMarkSongList(data.markedSongList));
             dispatch(updateLoading(false));
         });
     };

@@ -26,6 +26,7 @@ const tool = require('../modules/tool');
 const checkLoginMid = require('../middlewares/check').checkLogin;
 const user = require('../model/user');
 const notes = require('../model/notes');
+const songList = require('../model/songList');
 exports.rootPath = '/api';
 
 /**
@@ -191,7 +192,7 @@ router.post('/signup', bodyParser.json(), function (req, res, next) {
                 name: name,
                 avatar: avatar
             }, '创建用户成功'));
-        });
+        }).catch(next);
     }).catch(next);
 });
 
@@ -249,12 +250,83 @@ router.post('/delete/song', checkLoginMid, bodyParser.json(), function (req, res
  * 查询用户的歌单
  */
 router.get('/songlist', checkLoginMid, function (req, res, next) {
-    user.querySongList(req.session.userId).then(function (result) {
-        console.log(result);
+    let queryListOper = Promise.all([songList.querySongList(req.session.userId), songList.queryMarkedSongList(req.session.userId)]);
+    queryListOper.then(function(results) {
+        let favoriteList;
+        let songList = [];
+        let markedSongList = [];
+        results[0].forEach(function(list) {
+            if(list.id === list.favoriteList) {
+                favoriteList = list;
+            }else {
+                songList.push(list);
+            }
+            delete list.favoriteList;
+        });
+        markedSongList = results[1];
         res.send(tool.buildResData({
             success: true,
-            songList: result
-        }, '查询成功'));
+            songList,
+            favoriteList,
+            markedSongList
+        }));
+    }).catch(next);
+});
+router.post('/songlist/delete', checkLoginMid, bodyParser.json(), function(req, res, next) {
+    // 删除用户创建的歌单
+    if(!req.body.id) {
+        let err = new Error('缺少歌单ID');
+        err.status = STATUS_CODE.API_ERROR;
+        return next(err);
+    }
+    songList.deleteSongList(req.session.userId, req.body.id).then(function() {
+        res.send(tool.buildResData({
+            success: true
+        }, '删除成功'));
+    }).catch(next);
+});
+router.post('/songlist/add', checkLoginMid, bodyParser.json(), function(req, res, next) {
+    if(!req.body.name) {
+        let err = new Error('缺少歌单名称');
+        err.status = STATUS_CODE.API_ERROR;
+        return next(err);
+    }
+    songList.createSongList({
+        name: req.body.name,
+        time: new Date().getTime(),
+        userId: req.session.userId
+    }).then(function() {
+        res.send(tool.buildResData({
+            success: true
+        }, '创建成功'));
+    }).catch(next);
+});
+/**
+ * 收藏歌单操作
+ */
+router.post('/marksonglist/add', checkLoginMid, bodyParser.json(), function(req, res, next) {
+    if(!req.body.id || Number.isNaN(req.body.id)) {
+        let err = new Error('歌单ID不正确');
+        err.status = STATUS_CODE.API_ERROR;
+        return next(err);
+    }
+    songList.markSongList(req.body.id, req.session.userId).then(function() {
+        res.send(tool.buildResData({
+            success: true
+        }, '收藏歌单成功'));
+    }).catch(next);
+});
+
+router.post('/marksonglist/delete', checkLoginMid, bodyParser.json(), function(req, res, next) {
+    if(!req.body.id || Number.isNaN(req.body.id)) {
+        let err = new Error('歌单ID不正确');
+        err.status = STATUS_CODE.API_ERROR;
+        return next(err);
+    }
+    songList.delMarkedSongList(req.body.id, req.session.userId).then(function() {
+        res.send(tool.buildResData({
+            success: true
+        }, '取消收藏歌单成功'));
     }).catch(next);
 });
 /**

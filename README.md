@@ -30,7 +30,8 @@ songMap: userId songId
 2. 重构数据库，增加用户歌单。个人信息页增加字段，参照netease。
 3. 增加登录页。未登录用户进入直接跳转登录注册页。 
 ### daily
-完成登录页面 之后还需完善按需加载 finished at 2018.1.27
+完成登录页面 之后还需完善按需加载 finished at 2018.1.27  
+完成歌单功能 finished at 2018.1.29
 ### 数据库重构
 #### user  
 字段|含义|类型
@@ -62,6 +63,9 @@ serverName|服务源|var|
 artist|作者|var|
 img|歌曲封面|var|
 songListId|所属歌单Id|int|
+#### markSongListMap
 ### notice  
 1. 发现之前写的devserver缺少html5history路由,查了一下vue-cli，已经换成webpack的devserver。see https://github.com/vuejs-templates/webpack/blob/develop/template/build/webpack.dev.conf.js#L24
-2. antd组件库更新至 3.x.x
+2. antd组件库更新至 3.x.x  
+3. 多个数据库操作最好封装成事务，当某个操作失败时可以回滚数据库。
+

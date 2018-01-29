@@ -6,15 +6,36 @@ const mysqlOptions = require('../config/server').mysqlOption;
 const pool = mysql.createPool(mysqlOptions);
 const STATUS_CODE = require('../enums/status');
 
+const songList = require('./songList');
 
 
 module.exports.creatUser = function(userName, passwd, name, avatar) {
-    return new Promise(function(resolve, reject) {
+    let newUser = new Promise(function(resolve, reject) {
         pool.query('insert into user (userName,passwd,name,avatar) values (?,?,?,?)', [userName, passwd, name, avatar], function(err, results) {
             if(err) {
                 return reject(err);
             }
             return resolve(results);
+        });
+    });
+    let newUserId;
+    return newUser.then(function(result) {
+        if(!result.insertId) {
+            return new Promise.reject('新增用户失败');
+        }
+        newUserId = result.insertId;
+        // 拿到新增用户的ID，创建默认歌单
+        return songList.creatFavoriteList(result.insertId);
+    }).then(function(newSongList) {
+        return new Promise(function(resolve, reject) {
+            pool.query(`update user set favoriteList = ? where userId = ${newUserId}`, [newSongList.insertId], function(err) {
+                if(err) {
+                    return reject(err);
+                }
+                return resolve({
+                    insertId: newUserId
+                });
+            });
         });
     });
 };

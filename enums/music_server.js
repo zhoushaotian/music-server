@@ -25,13 +25,15 @@ module.exports.navigation = [
         key: 'myList',
         title: '我的歌单',
         icon: 'profile',
-        dynamic: true
+        dynamic: true,
+        children: []
     },
     {
         key: 'songList',
         title: '我收藏的歌单',
         dynamic: true,
-        icon: 'database'
+        icon: 'database',
+        children: []
     },
     {
         key: 'myNote',

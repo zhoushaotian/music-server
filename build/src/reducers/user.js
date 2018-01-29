@@ -1,4 +1,4 @@
-import {CLEAN_USER, UPDATE_USER, UPDATE_USER_LOADING, UPDATE_SHOWLOGIN, UPDATE_SHOWSIGNUP, UPDATE_SONGLIST, UPDATE_SHOWPLAYER, ADD_SONG_NO_SAVE, DELETE_SONG} from '../actions/user';
+import {CLEAN_USER, UPDATE_USER, UPDATE_USER_LOADING, UPDATE_SHOWLOGIN, UPDATE_SHOWSIGNUP, UPDATE_SONGLIST, UPDATE_SHOWPLAYER, ADD_SONG_NO_SAVE, DELETE_SONG, UPDATE_MARKSONGLIST} from '../actions/user';
 
 const INIT_STATE = {
     name: '',
@@ -8,7 +8,8 @@ const INIT_STATE = {
     showLogin: false,
     showSignUp: false,
     showPlayer: false,
-    songList: []
+    songList: [],
+    markedSongList: []
 };
 
 export default function user(state = INIT_STATE, action) {
@@ -29,6 +30,10 @@ export default function user(state = INIT_STATE, action) {
     case UPDATE_SONGLIST:
         return Object.assign({}, state, {
             songList: action.data
+        });
+    case UPDATE_MARKSONGLIST:
+        return Object.assign({}, state, {
+            markedSongList: action.data
         });
     case UPDATE_SHOWSIGNUP:
         return Object.assign({}, state, {

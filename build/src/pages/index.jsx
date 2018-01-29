@@ -10,7 +10,7 @@ import TopBar from '../compoents/top_bar';
 import { navigation } from '../../../enums/music_server';
 
 const { SubMenu, Item } = Menu;
-const { Header, Sider, Content } = Layout;
+const { Header, Sider, Content, Footer } = Layout;
 function mapProps(state) {
     return {
         loading: state.list.loading,
@@ -190,19 +190,37 @@ class Demo extends React.Component {
     }
     render() {
         const { user } = this.props;
+        const siderMenu = navigation;
+        siderMenu.forEach(function(item) {
+            if(item.title === '我收藏的歌单') {
+                item.children = user.markedSongList;
+            }
+            if(item.title === '我的歌单') {
+                item.children = user.songList;
+            }
+        });
         return (
             <Layout style={{ minHeight: '100vh' }}>
                 <Header style={{ backgroundColor: 'white', padding: '0' }}>
                     <TopBar avatar={user.avatar} name={user.name} login={user.login} handleClickLogin={this.handleClickLogin} handleClickEsc={this.handleClickEsc} handleClickSignUp={this.handleClickSignUp} handleClickShowPlayer={this.handleClickShowPlayer} loading={user.loading} />
                 </Header>
                 <Layout style={{ paddingTop: '5px' }}>
-                    <Sider collapsible={true} breakpoint="lg">
-                        <Menu mode="vertical" defaultOpenKeys={['songList']}>
+                    <Sider collapsible={false} breakpoint="lg" style={{overflow: 'auto', top: 0, left: 0}}>
+                        <Menu mode="vertical">
                             {
-                                navigation.map((item) => {
+                                siderMenu.map((item) => {
                                     if (item.dynamic) {
                                         return (
                                             <SubMenu key={item.key} title={<span><Icon type={item.icon}/><span>{item.title}</span></span>}>
+                                                {
+                                                    item.children.map((list) => {
+                                                        return (
+                                                            <Item key={item.key + list.id}>
+                                                                {<span><Icon type="cloud-o" /><span>{list.name}</span></span>}
+                                                            </Item>
+                                                        );
+                                                    })
+                                                }
                                             </SubMenu>
                                         );
                                     }
@@ -220,6 +238,8 @@ class Demo extends React.Component {
                         </Content>
                     </Layout>
                 </Layout>
+                <Footer>
+                </Footer>
             </Layout>
         );
     }
