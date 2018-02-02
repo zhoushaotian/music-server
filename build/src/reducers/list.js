@@ -1,13 +1,20 @@
-import {UPDATE_LIST, UPDATE_LIST_LOADING, CLEAN_LIST, UPDATE_CURRENT_PAGE, UPDATE_TOTAL} from '../actions/list';
+import {UPDATE_LIST, UPDATE_LIST_LOADING, CLEAN_LIST, UPDATE_CURRENT_PAGE, UPDATE_TOTAL, UPDATE_SERACH} from '../actions/list';
 
 const INIT_SATE = {
     list: [],
     loading: false,
     total: 0,
-    currentPage: 1
+    currentPage: 1,
+    key: '',
+    server: ''
 };
 export default function list(state = INIT_SATE, action) {
     switch (action.type) {
+    case UPDATE_SERACH:
+        return Object.assign({}, state, {
+            key: action.data.key,
+            server: action.data.server
+        });
     case UPDATE_LIST:
         return Object.assign({}, state, {
             list: action.data

@@ -1,54 +1,60 @@
 import React from 'react';
 import propTypes from 'prop-types';
 
-import {Table, Icon} from 'antd';
+import {Table, Button} from 'antd';
 class SongList extends React.Component {
     constructor(props) {
         super(props);
-        this.handleClickRow = this.handleClickRow.bind(this);
-        this.handleDeleteClick = this.handleDeleteClick.bind(this);
+        this.handleChange = this.handleChange.bind(this);
+        this.handleClickPlus = this.handleClickPlus.bind(this);
+        this.handleClickHeart = this.handleClickHeart.bind(this);
     }
-    buildSongListItem(currentIndex) {
-        return (text, record, index) => {
-            if(currentIndex === index) {
-                return <span className="song-item item-orange">{text}</span>;
-            }
-            return <span className="song-item item-blue">{text}</span>;
-        };
+    handleChange(page) {
+        const {handlePageChange} = this.props;
+        handlePageChange(page);
     }
-    handleDeleteClick(index) {
-        const {handleDeleteClick} = this.props;
-        handleDeleteClick(index);
+    handleClickPlus(song) {
+        const {handleAddSong} = this.props;
+        handleAddSong(song);
     }
-    handleClickRow(record, index) {
-        const {handleClickRow} = this.props;
-        handleClickRow(record, index);
+    handleClickHeart(song) {
+        const {handleLoveSong} = this.props;
+        handleLoveSong(song);
     }
     render() {
-        const {songList, currentIndex, loading} = this.props;
+        const {songList} = this.props;
         const columns = [
             {
-                dataIndex: 'songName',
-                title: '歌名',
-                render: this.buildSongListItem(currentIndex)
+                dataIndex: 'name',
+                title: '歌名'
+                
             },
             {
-                dataIndex: 'artist',
-                title: '歌手',
-                render: this.buildSongListItem(currentIndex)
+                dataIndex: 'artists[0].name',
+                title: '歌手'
             },
             {
-                render: (text, record, index) => {
-                    return <Icon type="close" onClick={(e) => {e.stopPropagation();this.handleDeleteClick(record, index);}}/>;
+                title: '操作',
+                render: (text, record) => {
+                    return (
+                        <div className="list-operate">
+                            <Button type="primary" shape="circle" icon="plus" onClick={() => {this.handleClickPlus(record);}}/>
+                            <Button type="primary" shape="circle" icon="heart" onClick={() => {this.handleClickHeart(record);}}/>
+                        </div>
+                    );
                 }
             }
         ];
         return (
-            <Table columns={columns} dataSource={songList} showHeader={false} pagination={false} className="songlist-wrapper" 
-                onRow={this.handleClickRow}
-                rowKey='songId'
-                size='small'
-                loading={loading}
+            <Table columns={columns} dataSource={songList.list} 
+                pagination={{
+                    current: songList.currentPage,
+                    total: songList.total,
+                    pageSize: 10,
+                    onChange: this.handleChange
+
+                }}
+                loading={songList.loading}
                 locale={{
                     emptyText: '登陆后添加的歌曲会保存'
                 }}>    
@@ -57,10 +63,11 @@ class SongList extends React.Component {
     }
 }
 SongList.propTypes = {
-    songList: propTypes.array,
-    currentIndex: propTypes.number,
+    songList: propTypes.object,
     handleClickRow: propTypes.func,
     handleDeleteClick: propTypes.func,
-    loading: propTypes.bool
+    handlePageChange: propTypes.func,
+    handleAddSong: propTypes.func,
+    handleLoveSong: propTypes.func
 };
 export default SongList;

@@ -1,6 +1,6 @@
 'use strict';
 const STATUS_CODE = {
-    'API_ERROR': 400,
+    'API_ERROR': 200,
     'NOT_FOUND': 404,
     'NO_PERMISSION': 403,
     'ERROR': 500,

@@ -1,3 +1,8 @@
+.text-bold{
+    font-size: 16px;
+    font-weight: bold;
+    margin-right: 10px;
+}
 .player-wrapper{
     .song-title{
         display: block;
@@ -81,5 +86,39 @@ td .ant-tag {
     }
     .ant-card-head{
         background: none;
+    }
+}
+.suggest-wrapper{
+    .card-list{
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-around;
+        align-content: space-around;
+        .card-wrapper{
+            width: 200px;
+            margin-bottom: 10px;
+        }
+    }
+}
+.content-wrapper{
+    display: flex;
+    padding: 20px;
+    .avatar{
+        display: inline-block;
+        width: 200px;
+        height: 200px;
+    }
+    .person-info{
+        margin-left: 30px;
+        .info-header{
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border-bottom: gray solid 1px;
+        }
+        .person-name{
+            font-size: 30px;
+            font-weight: bold;
+        }
     }
 }

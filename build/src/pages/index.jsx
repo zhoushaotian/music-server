@@ -1,22 +1,28 @@
 import React from 'react';
 import propTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { searchSong } from '../actions/list';
-import { Layout, Menu, Icon } from 'antd';
+import { Layout, Menu, Icon, message, Modal, Select} from 'antd';
+import axios from 'axios';
 
-import { getUser, login, updateShowLogin, cancelUser, updateShowSignUp, signUp, updateShowPlayer, addSongNoSave, addSong, deleteSong, updateLoading, deleteSongLogin } from '../actions/user.js';
-import { getSongdetail } from '../actions/detail';
+import { getUser } from '../actions/user.js';
+import {createSongList} from '../actions/user';
 import TopBar from '../compoents/top_bar';
 import { navigation } from '../../../enums/music_server';
 
+import SuggestSong from '../compoents/suggest_song';
+import Notes from '../compoents/notes';
+import MyInfo from '../compoents/myinfo';
+import SongListDetail from '../compoents/songlist_detail';
+import SearchSongList from '../compoents/song_list';
+import {searchSong, updateSearch} from '../actions/list';
+import SongListForm from '../compoents/form/songlist_form';
+
 const { SubMenu, Item } = Menu;
 const { Header, Sider, Content, Footer } = Layout;
+const {Option} = Select;
 function mapProps(state) {
     return {
-        loading: state.list.loading,
-        list: state.list.list,
-        currentPage: state.list.currentPage,
-        total: state.list.total,
+        list: state.list,
         user: state.user,
         detail: state.detail,
     };
@@ -25,172 +31,140 @@ class Demo extends React.Component {
     constructor() {
         super();
         this.state = {
-            searchKey: '',
-            server: 'netease',
-            showNotes: true
+            curMenuItem: 'loveSong',
+            loading: false
         };
-        this.handleSearchChange = this.handleSearchChange.bind(this);
-        this.handleServerChange = this.handleServerChange.bind(this);
-        this.handleGetSong = this.handleGetSong.bind(this);
-        this.handleAlertClose = this.handleAlertClose.bind(this);
-        this.handleCancelLogin = this.handleCancelLogin.bind(this);
-        this.handleClickLogin = this.handleClickLogin.bind(this);
-        this.handleLogin = this.handleLogin.bind(this);
-        this.handleClickEsc = this.handleClickEsc.bind(this);
-        this.handleCancelSign = this.handleCancelSign.bind(this);
-        this.handleClickSignUp = this.handleClickSignUp.bind(this);
-        this.handleSignUp = this.handleSignUp.bind(this);
-        this.handleClickShowPlayer = this.handleClickShowPlayer.bind(this);
-        this.handleClickRow = this.handleClickRow.bind(this);
-        this.handleDeleteClick = this.handleDeleteClick.bind(this);
-        this.handleListen = this.handleListen.bind(this);
+        this.handleMenuClick = this.handleMenuClick.bind(this);
+        this.handleSearchSong = this.handleSearchSong.bind(this);
+        this.handlePageChange = this.handlePageChange.bind(this);
+        this.handleLoveSong = this.handleLoveSong.bind(this);
+        this.handleAddSong = this.handleAddSong.bind(this);
     }
-    handleListen(id, name, artist, img) {
-        const { dispatch } = this.props;
-        const { server } = this.state;
-        dispatch(updateShowPlayer(true));
-        dispatch(getSongdetail({
-            id,
-            server,
-            songName: name,
-            artist,
-            img,
-            currentSong: -1
+    handleAddSong(song) {
+        const {user} = this.props;
+        this.selectList = user.favoriteList;
+        Modal.confirm(
+            {
+                content: (
+                    <Select style={{width: '200px'}} defaultValue='我最喜爱的音乐' onChange={(value) => {
+                        this.selectList = value;
+                    }}>
+                        <Option key={user.favoriteList}>我最喜爱的音乐</Option>
+                        {user.songList.map(function(list) {
+                            return (
+                                <Option key={list.id}>{list.name}</Option>
+                            );
+                        })}
+                    </Select>
+                ),
+                title: '选择要添加的歌单',
+                maskClosable: true,
+                onOk: () => {
+                    if(this.selectList) {
+                        axios.post('/api/add/song', {
+                            songId: song.id,
+                            songName: song.name,
+                            serverName: song.server,
+                            artist: song.artists[0].name,
+                            img: song.album.cover,
+                            songListId: this.selectList
+                        }).then(function(res) {
+                            if(res.data.data.success) {
+                                return message.success(res.data.msg);
+                            }
+                            message.error(res.data.msg);
+                        }).catch(function(err) {
+                            message.error(err.message);
+                        });
+                    }
+                }
+            }
+        );
+    }
+    handleLoveSong(song) {
+        const {user} = this.props;
+        if(!user.favoriteList) {
+            return message.error('还未登录');
+        }
+        axios.post('/api/add/song', {
+            songId: song.id,
+            songName: song.name,
+            serverName: song.server,
+            artist: song.artists[0].name,
+            img: song.album.cover,
+            songListId: user.favoriteList
+        }).then(function(res) {
+            if(res.data.data.success) {
+                return message.success(res.data.msg);
+            }
+            message.error(res.data.msg);
+        }).catch(function(err) {
+            message.error(err.message);
+        });
+    }
+    handlePageChange(page) {
+        const {list, dispatch} = this.props;
+        dispatch(searchSong({
+            key: list.key,
+            server: list.server,
+            page
         }));
     }
-    handleDeleteClick(record, index) {
-        const { dispatch, user } = this.props;
-        if (user.login) {
-            return dispatch(deleteSongLogin(record.songId));
-        }
-        dispatch(deleteSong(index));
-    }
-    handleClickRow(song, index) {
-        const { dispatch } = this.props;
-        dispatch(updateLoading(true));
-        dispatch(updateShowPlayer(true));
-        dispatch(getSongdetail({
-            id: song.songId,
-            server: song.serverName,
-            songName: song.songName,
-            artist: song.artist,
-            img: song.img,
-            currentSong: index
-        }));
-        dispatch(updateLoading(false));
-    }
-    handleClickShowPlayer() {
-        const { dispatch, detail, user } = this.props;
-        let lastAddSongIndex = user.songList.length - 1;
-        // 第一次打开播放器时初始化
-        if (!detail.url && user.songList.length !== 0 && detail.fistShow) {
-            dispatch(getSongdetail({
-                id: user.songList[lastAddSongIndex].songId,
-                server: user.songList[lastAddSongIndex].serverName,
-                songName: user.songList[lastAddSongIndex].songName,
-                artist: user.songList[lastAddSongIndex].artist,
-                img: user.songList[lastAddSongIndex].img,
-                currentSong: lastAddSongIndex
-            }));
-        }
-        dispatch(updateShowPlayer(true));
-    }
-    handleSignUp(values) {
-        const { dispatch } = this.props;
-        dispatch(signUp(values));
-    }
-    handleClickSignUp() {
-        const { dispatch } = this.props;
-        dispatch(updateShowSignUp(true));
-    }
-    handleCancelSign() {
-        const { dispatch } = this.props;
-        dispatch(updateShowSignUp(false));
-    }
-    handleClickEsc() {
-        const { dispatch } = this.props;
-        dispatch(cancelUser());
-    }
-    handleClickLogin() {
-        const { dispatch } = this.props;
-        dispatch(updateShowLogin(true));
-    }
-    handleLogin(values) {
-        const { dispatch } = this.props;
-        dispatch(login(values));
-    }
-    handleCancelLogin() {
-        const { dispatch } = this.props;
-        dispatch(updateShowLogin(false));
-    }
-    handleAlertClose() {
-        const { dispatch } = this.props;
-        dispatch(updateShowPlayer(false));
-    }
-    handleGetSong(id, songName, artist, imgSrc) {
-        const { server } = this.state;
-        const { user, dispatch } = this.props;
-        if (user.login) { //处于登录状态则发送请求
-            return dispatch(addSong({
-                id,
-                name: songName,
-                artist,
-                img: imgSrc,
+    handleSearchSong(key, server) {
+        const {dispatch} = this.props;
+        this.setState({
+            curMenuItem: 'searchSong'
+        }, () => {
+            dispatch(updateSearch({
+                key,
                 server
             }));
-        }
-        return dispatch(addSongNoSave({
-            songId: id,
-            songName,
-            serverName: server,
-            artist,
-            img: imgSrc
-        }));
-    }
-    handleServerChange(value) {
-        const { searchKey } = this.state;
-        const { dispatch } = this.props;
-        this.setState({
-            server: value
-        }, function () {
-            if (!searchKey) {
-                return;
-            }
             dispatch(searchSong({
-                key: searchKey,
-                server: value,
+                key,
+                server,
                 page: 1
             }));
         });
     }
-    handlePageChange(page) {
-        const { dispatch } = this.props;
-        const { searchKey } = this.state;
-        dispatch(searchSong({
-            key: searchKey,
-            server: 'netease',
-            page
-        }));
-    }
-    handleSearchChange(value) {
-        const { dispatch } = this.props;
-        const { server } = this.state;
+    handleMenuClick(obj) {
+        const {loading} = this.state;
+        const {dispatch} = this.props;
+        if(obj.key === 'addSonglist') {
+            Modal.confirm({
+                content: (
+                    <SongListForm loading={loading} wrappedComponentRef={(listForm) => {this.listFormRef = listForm;}}/>
+                ),
+                title: '创建歌单',
+                onOk: (close) => {
+                    if(this.listFormRef) {
+                        this.listFormRef.props.form.validateFields((err, values) => {
+                            if(err) {
+                                return;
+                            }
+                            console.log(values);
+                            dispatch(createSongList(values));
+                            return close();
+                        });
+                    }
+                }
+            });
+            return;
+        }
         this.setState({
-            searchKey: value
+            curMenuItem: obj.key
         });
-        dispatch(searchSong({
-            key: value,
-            server,
-            page: 1
-        }));
-    }
-    componentDidMount() {
-        const { dispatch } = this.props;
-        dispatch(getUser());
     }
     render() {
-        const { user } = this.props;
+        const { user, list } = this.props;
+        const {curMenuItem} = this.state;
         const siderMenu = navigation;
+        const contentMap = {
+            myInfo: <MyInfo/>,
+            myNote: <Notes/>,
+            findSong: <SuggestSong/>,
+            searchSong: <SearchSongList songList={list} handleClickRow={this.handleClickRow} handlePageChange={this.handlePageChange} handleLoveSong={this.handleLoveSong} handleAddSong={this.handleAddSong}
+            />
+        };
         siderMenu.forEach(function(item) {
             if(item.title === '我收藏的歌单') {
                 item.children = user.markedSongList;
@@ -200,13 +174,13 @@ class Demo extends React.Component {
             }
         });
         return (
-            <Layout style={{ minHeight: '100vh' }}>
+            <Layout style={{ height: '100vh' }}>
                 <Header style={{ backgroundColor: 'white', padding: '0' }}>
-                    <TopBar avatar={user.avatar} name={user.name} login={user.login} handleClickLogin={this.handleClickLogin} handleClickEsc={this.handleClickEsc} handleClickSignUp={this.handleClickSignUp} handleClickShowPlayer={this.handleClickShowPlayer} loading={user.loading} />
+                    <TopBar avatar={user.avatar} name={user.name} handleSearchSong={this.handleSearchSong} loading={user.loading} login={user.login}/>
                 </Header>
                 <Layout style={{ paddingTop: '5px' }}>
                     <Sider collapsible={false} breakpoint="lg" style={{overflow: 'auto', top: 0, left: 0}}>
-                        <Menu mode="vertical">
+                        <Menu mode="vertical" defaultSelectedKeys={['loveSong']} onClick={this.handleMenuClick}>
                             {
                                 siderMenu.map((item) => {
                                     if (item.dynamic) {
@@ -235,6 +209,7 @@ class Demo extends React.Component {
                     </Sider>
                     <Layout>
                         <Content>
+                            {contentMap[curMenuItem] ? contentMap[curMenuItem] : <SongListDetail />}
                         </Content>
                     </Layout>
                 </Layout>
@@ -243,12 +218,13 @@ class Demo extends React.Component {
             </Layout>
         );
     }
+    componentDidMount() {
+        const { dispatch } = this.props;
+        dispatch(getUser());
+    }
 }
 Demo.propTypes = {
-    list: propTypes.array,
-    loading: propTypes.bool,
-    currentPage: propTypes.number,
-    total: propTypes.number,
+    list: propTypes.object,
     dispatch: propTypes.func,
     getState: propTypes.func,
     user: propTypes.object,

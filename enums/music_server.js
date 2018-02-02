@@ -22,6 +22,11 @@ module.exports.navigation = [
         icon: 'heart'
     },
     {
+        key: 'addSonglist',
+        title: '创建歌单',
+        icon: 'plus'
+    },
+    {
         key: 'myList',
         title: '我的歌单',
         icon: 'profile',

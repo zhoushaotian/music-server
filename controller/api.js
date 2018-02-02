@@ -15,7 +15,7 @@ const storage = multer.diskStorage({
         cb(null, uuidv1() + '.' + 'jpg');
     }
 });
-const upload = multer({ storage }).single('avatar');
+const upload = multer({ storage }).single('img');
 const path = require('path');
 
 
@@ -86,6 +86,8 @@ router.get('/user', function (req, res) {
         return res.send(tool.buildResData({
             name: req.session.name,
             avatar: req.session.avatar,
+            bio: req.session.bio,
+            time: req.session.time,
             login: true
         }, '获取登录状态成功'));
     }
@@ -111,10 +113,14 @@ router.post('/login', bodyParser.json(), function (req, res, next) {
                 req.session.userId = result[0].userId;
                 req.session.name = result[0].name;
                 req.session.avatar = result[0].avatar;
+                req.session.bio = result[0].bio;
+                req.session.time = result[0].time;
                 return res.send(tool.buildResData({
                     success: true,
                     name: result[0].name,
-                    avatar: result[0].avatar
+                    avatar: result[0].avatar,
+                    bio: result[0].bio,
+                    time: result[0].time
                 }, '登录成功'));
             }
             return res.send(tool.buildResData({
@@ -175,17 +181,20 @@ router.post('/signup', bodyParser.json(), function (req, res, next) {
     let passwd = sha1(req.body.passwd);
     let name = req.body.name;
     let avatar = req.body.avatar ? req.body.avatar : '/img/default.png';
+    let time = new Date().getTime();
     user.queryUser(userName).then(function (result) {
         if (result.length > 0) {
             return res.send(tool.buildResData({
                 success: false
             }, '用户已存在'));
         }
-        user.creatUser(userName, passwd, name, avatar).then(function (result) {
+        user.creatUser(userName, passwd, name, avatar, time).then(function (result) {
             // 写session
             req.session.name = name;
             req.session.userId = result.insertId;
             req.session.avatar = avatar;
+            req.session.time = time;
+            req.session.bio = '这个人很懒什么都没留下';
             console.log('新用户注册-userId:', req.session.userId);
             return res.send(tool.buildResData({
                 success: true,
@@ -205,23 +214,21 @@ router.post('/add/song', checkLoginMid, bodyParser.json(), function (req, res, n
         err.status = STATUS_CODE.API_ERROR;
         return next(err);
     }
-    user.searchSong(req.session.userId, req.body.songId).then(function (result) {
-        if (result.length > 0) {
-            return res.send(tool.buildResData({
-                success: false
-            }, '歌曲已经存在'));
-        }
-        user.addSong(req.session.userId, {
-            songId: req.body.songId,
-            songName: req.body.songName,
-            serverName: req.body.serverName,
-            artist: req.body.artist,
-            img: req.body.img
-        }).then(function () {
-            return res.send(tool.buildResData({
-                success: true
-            }, '添加成功'));
-        }).catch(next);
+    if(!req.body.songListId) {
+        let err = new Error('缺少歌单ID');
+        err.status = STATUS_CODE.API_ERROR;
+        return next(err);
+    }
+    songList.addSong({
+        songId: req.body.songId,
+        songName: req.body.songName,
+        serverName: req.body.serverName,
+        artist: req.body.artist,
+        img: req.body.img
+    }, req.session.userId, req.body.songListId).then(function() {
+        res.send(tool.buildResData({
+            success: true
+        }, '添加成功'));
     }).catch(next);
 });
 
@@ -267,7 +274,7 @@ router.get('/songlist', checkLoginMid, function (req, res, next) {
         res.send(tool.buildResData({
             success: true,
             songList,
-            favoriteList,
+            favoriteList: favoriteList.id,
             markedSongList
         }));
     }).catch(next);
@@ -291,13 +298,20 @@ router.post('/songlist/add', checkLoginMid, bodyParser.json(), function(req, res
         err.status = STATUS_CODE.API_ERROR;
         return next(err);
     }
-    songList.createSongList({
+    let reqOpts = {
         name: req.body.name,
         time: new Date().getTime(),
-        userId: req.session.userId
-    }).then(function() {
+        userId: req.session.userId,
+        listBio: req.body.listBio
+    };
+    if(req.body.listCover) {
+        reqOpts.img = req.body.listCover;
+    }
+    songList.createSongList(reqOpts).then(function(id) {
         res.send(tool.buildResData({
-            success: true
+            success: true,
+            id,
+            name: req.body.name
         }, '创建成功'));
     }).catch(next);
 });
@@ -342,6 +356,22 @@ router.post('/upload/avatar', function (req, res, next) {
             success: true
         }));
     });
+});
+/**
+ * 修改个人bio
+ */
+router.post('/bio/update', checkLoginMid, bodyParser.json(), function(req, res, next) {
+    if(!req.body.bio) {
+        let err = new Error('缺少个人介绍');
+        err.status = STATUS_CODE.API_ERROR;
+        return next(err);
+    }
+    user.modifyInfo(req.session.userId, req.body.bio).then(function() {
+        req.session.bio = req.body.bio;
+        return res.send(tool.buildResData({
+            success: true
+        }, '修改成功'));
+    }).catch(next);
 });
 /**
  * 添加评论
@@ -428,7 +458,8 @@ router.post('/delete/note', checkLoginMid, bodyParser.json(), function (req, res
 // 获取推荐歌曲
 router.get('/suggest/song', function (req, res) {
     music.getSuggestSongs('qq', {
-        limit: 10
+        limit: 10,
+        raw: true
     }).then(function (result) {
         res.send(result);
     });

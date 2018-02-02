@@ -22,18 +22,18 @@ class AvatarUpload extends React.Component {
     }
     render() {
         const { img } = this.state;
-        const {action, name} = this.props;
+        const {action, discription} = this.props;
         return (
             <Upload
                 action={action}
                 accept='image/*'
                 showUploadList={false}
-                name={name}
+                name="img"
                 onChange={this.handleFileChange}
             >
                 {img ? <Avatar src={img} size='large'/> : null}
                 <Button>
-                    <Icon type="upload" />上传头像
+                    <Icon type="upload" />{discription ? discription : '上传头像' }
                 </Button>
             </Upload>
         );
@@ -41,8 +41,8 @@ class AvatarUpload extends React.Component {
 }
 AvatarUpload.propTypes = {
     action: propTypes.string,
-    name: propTypes.string,
-    onChange: propTypes.func
+    onChange: propTypes.func,
+    discription: propTypes.string
 };
 
 export default AvatarUpload;

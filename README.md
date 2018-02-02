@@ -31,7 +31,8 @@ songMap: userId songId
 3. 增加登录页。未登录用户进入直接跳转登录注册页。 
 ### daily
 完成登录页面 之后还需完善按需加载 finished at 2018.1.27  
-完成歌单功能 finished at 2018.1.29
+完成歌单功能 finished at 2018.1.29  
+完成添加歌单与添加歌曲功能 finished at 2018.2.2
 ### 数据库重构
 #### user  
 字段|含义|类型

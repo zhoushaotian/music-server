@@ -13,7 +13,9 @@ function handleErrorMid(err, req, res, next) {
     case STATUS_CODE.API_ERROR:
         res.status(err.status).send({
             msg: err.message,
-            success: false
+            data: {
+                success: false
+            }
         });
         console.log('API调用错误');
         console.log(err.message);

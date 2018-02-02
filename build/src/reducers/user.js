@@ -1,19 +1,32 @@
-import {CLEAN_USER, UPDATE_USER, UPDATE_USER_LOADING, UPDATE_SHOWLOGIN, UPDATE_SHOWSIGNUP, UPDATE_SONGLIST, UPDATE_SHOWPLAYER, ADD_SONG_NO_SAVE, DELETE_SONG, UPDATE_MARKSONGLIST} from '../actions/user';
+import {CLEAN_USER, UPDATE_USER, UPDATE_USER_LOADING, UPDATE_SHOWLOGIN, UPDATE_SHOWSIGNUP, UPDATE_SONGLIST, UPDATE_SHOWPLAYER, ADD_SONG_NO_SAVE, DELETE_SONG, UPDATE_MARKSONGLIST, UPDATE_FAVORITELIST, UPDATE_PERSON_INFO, ADD_SONGLIST} from '../actions/user';
 
 const INIT_STATE = {
     name: '',
     avatar: '',
+    time: '',
+    bio: '',
     login: false,
     loading: false,
     showLogin: false,
     showSignUp: false,
     showPlayer: false,
     songList: [],
-    markedSongList: []
+    markedSongList: [],
+    favoriteList: 0,
+    
 };
 
 export default function user(state = INIT_STATE, action) {
     switch (action.type) {
+    case ADD_SONGLIST:
+        return Object.assign({}, state, {
+            songList: state.songList.concat([
+                {
+                    id: action.data.id,
+                    name: action.data.name
+                }
+            ])
+        });
     case DELETE_SONG:
         state.songList.splice(action.data, 1);
         return Object.assign({}, state, {
@@ -34,6 +47,10 @@ export default function user(state = INIT_STATE, action) {
     case UPDATE_MARKSONGLIST:
         return Object.assign({}, state, {
             markedSongList: action.data
+        });
+    case UPDATE_FAVORITELIST:
+        return Object.assign({}, state, {
+            favoriteList: action.data
         });
     case UPDATE_SHOWSIGNUP:
         return Object.assign({}, state, {
@@ -60,6 +77,8 @@ export default function user(state = INIT_STATE, action) {
             showPlayer: false,
             songList: []
         };
+    case UPDATE_PERSON_INFO:
+        return Object.assign({}, state, action.data);
     default:
         return state;
     }

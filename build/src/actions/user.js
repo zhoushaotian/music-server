@@ -10,10 +10,25 @@ export const UPDATE_SHOWLOGIN = 'UPDATE_SHOWLOGIN';
 export const UPDATE_SHOWSIGNUP = 'UPDATE_SHOWSIGNUP';
 export const UPDATE_SONGLIST = 'UPDATE_SONGLIST';
 export const UPDATE_MARKSONGLIST = 'UPDATE_MARKSONGLIST';
+export const UPDATE_FAVORITELIST = 'UPDATE_FAVORITELIST';
 export const UPDATE_SHOWPLAYER = 'UPDATE_SHOWPLAYER';
 export const ADD_SONG_NO_SAVE = 'ADD_SONG_NO_SAVE';
 export const DELETE_SONG = 'DELETE_SONG';
+export const UPDATE_PERSON_INFO = 'UPDATE_PERSON_INFO';
+export const ADD_SONGLIST = 'ADD_SONGLIST';
 
+export function addSongList(data) {
+    return {
+        type: ADD_SONGLIST,
+        data
+    };
+}
+export function updatePersonInfo(data) {
+    return {
+        type: UPDATE_PERSON_INFO,
+        data
+    };
+}
 export function deleteSong(data) {
     return {
         type: DELETE_SONG,
@@ -42,6 +57,12 @@ export function updateSongList(data) {
 export function updateMarkSongList(data) {
     return {
         type: UPDATE_MARKSONGLIST,
+        data
+    };
+}
+export function updateFavoriteList(data) {
+    return {
+        type: UPDATE_FAVORITELIST,
         data
     };
 }
@@ -120,6 +141,8 @@ export function login(user) {
                 dispatch(updateUser({
                     name: data.name,
                     avatar: data.avatar,
+                    bio: data.bio,
+                    time: data.time,
                     login: true
                 }));
                 return browserHistory.push('/');
@@ -163,6 +186,7 @@ export function getSongList() {
             }
             dispatch(updateSongList(data.songList));
             dispatch(updateMarkSongList(data.markedSongList));
+            dispatch(updateFavoriteList(data.favoriteList));
             dispatch(updateLoading(false));
         });
     };
@@ -205,3 +229,37 @@ export function deleteSongLogin(songId) {
         });
     };
 }
+
+export function modifyBio(bio) {
+    return function(dispatch) {
+        dispatch(updateLoading(true));
+        axios.post('/api/bio/update', {
+            bio
+        }).then(function(res) {
+            let data = res.data.data;
+            dispatch(updateLoading(false));
+            if(data.success) {
+                return dispatch(updatePersonInfo({
+                    bio
+                }));
+            }
+            message.error('修改个人介绍失败');
+        });
+    };
+}
+
+export function createSongList(songList) {
+    return function(dispatch) {
+        axios.post('api/songlist/add', songList).then(function(res) {
+            let data = res.data.data;
+            if(data.success) {
+                return dispatch(addSongList({
+                    id: data.id,
+                    name: data.name
+                }));
+            }
+            return message.error(res.data.msg);
+        });
+    };
+}
+
