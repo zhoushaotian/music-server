@@ -51,7 +51,7 @@ module.exports.getNotes = function(currentPage, pages) {
             return reject(err);
         }
         let total = (currentPage - 1) * pages;
-        pool.query('select id,msg,name,time,avatar,notes.userId from notes,user where notes.userId = user.userId order by id desc limit ?,?', [total, pages], function (err, result) {
+        pool.query('select id,msg,name,notes.time,avatar,notes.userId from notes,user where notes.userId = user.userId order by id desc limit ?,?', [total, pages], function (err, result) {
             if(err) {
                 return reject(err);
             }

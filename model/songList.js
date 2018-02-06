@@ -168,7 +168,7 @@ module.exports.addSong = function (song, userId, songListId) {
         });
     }).then(function (count) {
         return new Promise(function (resolve, reject) {
-            pool.query('select count(*) from songList where id=?', [songListId], function (err, result) {
+            pool.query('select count(*) from songList where id=? and createdBy=?', [songListId, userId], function (err, result) {
                 if(err) {
                     return reject(err);
                 }
@@ -193,6 +193,73 @@ module.exports.addSong = function (song, userId, songListId) {
                 }
                 return resolve();
             });
+        });
+    });
+};
+module.exports.deleteSong = function(songListId, songId, userId) {
+    return new Promise(function(resolve, reject) {
+        pool.query('delete from song_map where songId = ? and songListId = ? and userId = ?', [songId, songListId, userId], function(err, result) {
+            if(err) {
+                return reject(err);
+            }
+            resolve(result.affectedRows);
+        });
+    });
+};
+/**
+ * 查询歌单详情
+ * @param {*int} songListId 歌单ID
+ */
+module.exports.queryListDetail = function(songListId) {
+    return new Promise(function(resolve, reject) {
+        if(!songListId) {
+            let err = new Error('缺少歌单ID');
+            err.status = STATUS_CODES.API_ERROR;
+            return reject(err);
+        }
+        pool.query('select count(*) from songList where id = ?', [songListId], function(err, result) {
+            if(err) {
+                return reject(err);
+            }
+            resolve(result[0]['count(*)']);
+        });
+    }).then(function(count) {
+        if(count === 0) {
+            let err = new Error('歌单ID不存在');
+            err.status = STATUS_CODES.API_ERROR;
+            return Promise.reject(err);
+        }
+        // 查歌单下的歌曲
+        return new Promise(function(resolve, reject) {
+            pool.query('select songId, songName,serverName, artist, song_map.img from songList,song_map where song_map.songListId = songList.id and songList.id = ?', [songListId], function(err, result) {
+                if(err) {
+                    reject(err);
+                }
+                resolve(result);
+            });
+        });
+    }).then(function(songList) {
+        // 查歌单信息
+        return new Promise(function(resolve, reject) {
+            pool.query('select songList.id as songListId,songList.name as listName, songList.time, img, listBio, user.name, user.avatar from user,songList where songList.id = ? and songList.createdBy = user.userId', [songListId], function(err, result) {
+                if(err) {
+                    reject(err);
+                }
+                let resData = Object.assign({
+                    songList
+                }, result[0]);
+                resolve(resData);
+            });
+        });
+    });
+};
+module.exports.suggestSong = function(limit) {
+    return new Promise(function(resolve, reject) {
+        pool.query('select distinct songId,songName,serverName,artist,img from song_map limit ?', [limit], function(err, result) {
+            if(err) {
+                reject(err);
+            }
+            resolve(result);
         });
     });
 };

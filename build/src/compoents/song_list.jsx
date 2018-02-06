@@ -22,7 +22,7 @@ class SongList extends React.Component {
         handleLoveSong(song);
     }
     render() {
-        const {songList} = this.props;
+        const {songList, handleSongClick} = this.props;
         const columns = [
             {
                 dataIndex: 'name',
@@ -40,6 +40,7 @@ class SongList extends React.Component {
                         <div className="list-operate">
                             <Button type="primary" shape="circle" icon="plus" onClick={() => {this.handleClickPlus(record);}}/>
                             <Button type="primary" shape="circle" icon="heart" onClick={() => {this.handleClickHeart(record);}}/>
+                            <Button type="primary" shape="circle" icon="profile" onClick={() => {handleSongClick(record);}}></Button>
                         </div>
                     );
                 }
@@ -56,7 +57,7 @@ class SongList extends React.Component {
                 }}
                 loading={songList.loading}
                 locale={{
-                    emptyText: '登陆后添加的歌曲会保存'
+                    emptyText: ''
                 }}>    
             </Table>
         );
@@ -68,6 +69,7 @@ SongList.propTypes = {
     handleDeleteClick: propTypes.func,
     handlePageChange: propTypes.func,
     handleAddSong: propTypes.func,
-    handleLoveSong: propTypes.func
+    handleLoveSong: propTypes.func,
+    handleSongClick: propTypes.func.isRequired
 };
 export default SongList;

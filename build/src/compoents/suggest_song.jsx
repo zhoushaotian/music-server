@@ -1,4 +1,5 @@
 import React from 'react';
+import propTypes from 'prop-types';
 import axios from 'axios';
 
 import { Card, Spin } from 'antd';
@@ -12,14 +13,13 @@ class SuggestSong extends React.Component {
     }
     componentDidMount() {
         this.setState({
-            loading: true,
-            songList: []
+            loading: true
         });
         axios.get('/api/suggest/song').then((res) => {
             if(!this.unmount) {
                 this.setState({
                     loading: false,
-                    songList: res.data.songList
+                    songList: res.data.data.result
                 });
             }
         });
@@ -29,6 +29,7 @@ class SuggestSong extends React.Component {
     }
     render() {
         const { loading, songList } = this.state;
+        const {handleSongClick} = this.props;
         return (
             <div className="suggest-wrapper">
                 <Spin spinning={loading}>
@@ -36,11 +37,11 @@ class SuggestSong extends React.Component {
                         {
                             songList.map(function (song, index) {
                                 return (
-                                    <div className="card-wrapper" key={index}>
+                                    <div className="card-wrapper" key={index} onClick={() => {handleSongClick(song);}}>
                                         <Card
                                             hoverable={true}
-                                            cover={<img src={song.album.coverSmall} />}
-                                            title={`${song.name}-${song.artists[0].name}`}
+                                            cover={<img src={song.img} />}
+                                            title={`${song.songName}-${song.artist}`}
                                             style={{ width: '200px' }}
                                         >
                                         </Card>
@@ -54,5 +55,7 @@ class SuggestSong extends React.Component {
         );
     }
 }
-
+SuggestSong.propTypes = {
+    handleSongClick: propTypes.func.isRequired
+};
 export default SuggestSong;

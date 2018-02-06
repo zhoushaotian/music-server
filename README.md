@@ -33,6 +33,8 @@ songMap: userId songId
 完成登录页面 之后还需完善按需加载 finished at 2018.1.27  
 完成歌单功能 finished at 2018.1.29  
 完成添加歌单与添加歌曲功能 finished at 2018.2.2
+完成歌曲和歌单详情开始构建底部播放控制 finished at 2018.2.5  
+弃用虾米音乐的推荐音乐接口 created at 2018.2.6
 ### 数据库重构
 #### user  
 字段|含义|类型
@@ -69,5 +71,6 @@ songListId|所属歌单Id|int|
 ### notice  
 1. 发现之前写的devserver缺少html5history路由,查了一下vue-cli，已经换成webpack的devserver。see https://github.com/vuejs-templates/webpack/blob/develop/template/build/webpack.dev.conf.js#L24
 2. antd组件库更新至 3.x.x  
-3. 多个数据库操作最好封装成事务，当某个操作失败时可以回滚数据库。
+3. 多个数据库操作最好封装成事务，当某个操作失败时可以回滚数据库。  
+4. xiamiAPI出现问题 看musicAPI源码 去了解fetch
 

@@ -16,6 +16,14 @@ import SongListDetail from '../compoents/songlist_detail';
 import SearchSongList from '../compoents/song_list';
 import {searchSong, updateSearch} from '../actions/list';
 import SongListForm from '../compoents/form/songlist_form';
+import SongDetail from '../compoents/song_detail';
+import FooterBar from '../compoents/footer_bar';
+
+
+import {getListDetail, deleteSong} from '../actions/song_list';
+import {updatePlayList, updateSongInfo, updatePlayStatus} from '../actions/play_list';
+
+import {optsConvert, fetchSongUrl} from '../tool/tool';
 
 const { SubMenu, Item } = Menu;
 const { Header, Sider, Content, Footer } = Layout;
@@ -25,24 +33,99 @@ function mapProps(state) {
         list: state.list,
         user: state.user,
         detail: state.detail,
+        songList: state.songList,
+        playList: state.playList
     };
 }
 class Demo extends React.Component {
     constructor() {
         super();
         this.state = {
-            curMenuItem: 'loveSong',
-            loading: false
+            curMenuItem: 'findSong',
+            loading: false,
+            curList: 0,
+            songDetail: {}
         };
         this.handleMenuClick = this.handleMenuClick.bind(this);
         this.handleSearchSong = this.handleSearchSong.bind(this);
         this.handlePageChange = this.handlePageChange.bind(this);
         this.handleLoveSong = this.handleLoveSong.bind(this);
         this.handleAddSong = this.handleAddSong.bind(this);
+        this.handleDeleteSong = this.handleDeleteSong.bind(this);
+        this.handleSongPlay = this.handleSongPlay.bind(this);
+        this.handleSongClick = this.handleSongClick.bind(this);
+        this.handleSongEnd = this.handleSongEnd.bind(this);
+        this.handleClickPause = this.handleClickPause.bind(this);
+    }
+    handleClickPause() {
+        const {dispatch, playList} = this.props;
+        if(!playList.url) {
+            return;
+        }
+        playList.isPlay ? dispatch(updatePlayStatus(false)) : dispatch(updatePlayStatus(true));
+    }
+    handleSongClick(song) {
+        if(song.suggest) {
+            song = {
+                songName: song.name,
+                artist: song.artists[0].name,
+                serverName: 'xiami',
+                url: song.file,
+                img: song.album.cover,
+                songId: song.id
+            };
+        }
+        this.setState({
+            songDetail: optsConvert(song)
+        }, () => {
+            this.setState({
+                curMenuItem: 'songDetail'
+            });
+        });
+    }
+    handleSongEnd(song) {
+        const {dispatch} = this.props;
+        fetchSongUrl(song.songId, song.serverName).then((url) => {
+            song.url = url;
+            dispatch(updateSongInfo(song));
+        }).catch((err) => {
+            message.error(err.message);
+        });
+    }
+    handleSongPlay(song) {
+        // 当点击歌曲详情播放的时候将store中的songlist赋给playlist 播放结束后随机歌单里的歌曲
+        const {dispatch, songList, user} = this.props;
+        let reqOpts = optsConvert(song);
+        if(songList.songList.length !== 0) {
+            dispatch(updatePlayList(songList.songList));
+        }else {
+            axios.get('/api/songlist/detail', {
+                params: {
+                    id: user.favoriteList
+                }
+            }).then((res) => {
+                dispatch(updatePlayList(res.data.data.result.songList));
+            });
+        }
+        dispatch(updatePlayStatus(true));
+        if(!song.url) {
+            return fetchSongUrl(reqOpts.songId, reqOpts.serverName).then((url) => {
+                reqOpts.url = url;
+                dispatch(updateSongInfo(reqOpts));
+            }).catch((err) => {
+                message.error(err.message);
+            });
+        }
+        return dispatch(updateSongInfo(reqOpts));
+    }
+    handleDeleteSong(song) {
+        const {dispatch, songList} = this.props;
+        dispatch(deleteSong(song.songId, songList.songListId));
     }
     handleAddSong(song) {
         const {user} = this.props;
         this.selectList = user.favoriteList;
+        let opts = optsConvert(song);
         Modal.confirm(
             {
                 content: (
@@ -61,14 +144,8 @@ class Demo extends React.Component {
                 maskClosable: true,
                 onOk: () => {
                     if(this.selectList) {
-                        axios.post('/api/add/song', {
-                            songId: song.id,
-                            songName: song.name,
-                            serverName: song.server,
-                            artist: song.artists[0].name,
-                            img: song.album.cover,
-                            songListId: this.selectList
-                        }).then(function(res) {
+                        opts.songListId = this.selectList;
+                        axios.post('/api/add/song', opts).then(function(res) {
                             if(res.data.data.success) {
                                 return message.success(res.data.msg);
                             }
@@ -83,17 +160,13 @@ class Demo extends React.Component {
     }
     handleLoveSong(song) {
         const {user} = this.props;
+        let opts = {};
         if(!user.favoriteList) {
             return message.error('还未登录');
         }
-        axios.post('/api/add/song', {
-            songId: song.id,
-            songName: song.name,
-            serverName: song.server,
-            artist: song.artists[0].name,
-            img: song.album.cover,
-            songListId: user.favoriteList
-        }).then(function(res) {
+        opts = optsConvert(song);
+        opts.songListId = user.favoriteList;
+        axios.post('/api/add/song', opts).then(function(res) {
             if(res.data.data.success) {
                 return message.success(res.data.msg);
             }
@@ -128,7 +201,7 @@ class Demo extends React.Component {
     }
     handleMenuClick(obj) {
         const {loading} = this.state;
-        const {dispatch} = this.props;
+        const {dispatch, user} = this.props;
         if(obj.key === 'addSonglist') {
             Modal.confirm({
                 content: (
@@ -150,20 +223,40 @@ class Demo extends React.Component {
             });
             return;
         }
+        let key = obj.key.slice(obj.key.indexOf('-') + 1);
+        if(!isNaN(key)) {
+            return this.setState({
+                curMenuItem: obj.key,
+                curList: parseInt(key)
+            }, () => {
+                dispatch(getListDetail(parseInt(key)));
+            });
+        }
+        if(obj.key === 'loveSong') {
+            return this.setState({
+                curMenuItem: obj.key,
+                curList: user.favoriteList
+            }, () => {
+                dispatch(getListDetail(user.favoriteList));
+            });
+        }
         this.setState({
             curMenuItem: obj.key
         });
+
     }
     render() {
-        const { user, list } = this.props;
-        const {curMenuItem} = this.state;
+        const { user, list, songList, playList } = this.props;
+        const {curMenuItem, songDetail} = this.state;
         const siderMenu = navigation;
         const contentMap = {
             myInfo: <MyInfo/>,
             myNote: <Notes/>,
-            findSong: <SuggestSong/>,
+            findSong: <SuggestSong handleSongClick={this.handleSongClick}/>,
             searchSong: <SearchSongList songList={list} handleClickRow={this.handleClickRow} handlePageChange={this.handlePageChange} handleLoveSong={this.handleLoveSong} handleAddSong={this.handleAddSong}
-            />
+                handleSongClick={this.handleSongClick}/>,
+            songListDetail: <SongListDetail listDetail={songList} handleDeleteSong={this.handleDeleteSong} handleClickPlus={this.handleAddSong} handleClickHeart={this.handleLoveSong} handleSongClick={this.handleSongClick}/>,
+            songDetail: <SongDetail handleSongPlay={this.handleSongPlay} song={songDetail} handleHeartSong={this.handleLoveSong} handlePlusSong={this.handleAddSong}/>
         };
         siderMenu.forEach(function(item) {
             if(item.title === '我收藏的歌单') {
@@ -180,7 +273,7 @@ class Demo extends React.Component {
                 </Header>
                 <Layout style={{ paddingTop: '5px' }}>
                     <Sider collapsible={false} breakpoint="lg" style={{overflow: 'auto', top: 0, left: 0}}>
-                        <Menu mode="vertical" defaultSelectedKeys={['loveSong']} onClick={this.handleMenuClick}>
+                        <Menu mode="vertical" defaultSelectedKeys={['findSong']} onClick={this.handleMenuClick}>
                             {
                                 siderMenu.map((item) => {
                                     if (item.dynamic) {
@@ -189,7 +282,7 @@ class Demo extends React.Component {
                                                 {
                                                     item.children.map((list) => {
                                                         return (
-                                                            <Item key={item.key + list.id}>
+                                                            <Item key={item.key + '-' + list.id}>
                                                                 {<span><Icon type="cloud-o" /><span>{list.name}</span></span>}
                                                             </Item>
                                                         );
@@ -209,11 +302,12 @@ class Demo extends React.Component {
                     </Sider>
                     <Layout>
                         <Content>
-                            {contentMap[curMenuItem] ? contentMap[curMenuItem] : <SongListDetail />}
+                            {contentMap[curMenuItem] ? contentMap[curMenuItem] : contentMap.songListDetail}
                         </Content>
                     </Layout>
                 </Layout>
-                <Footer>
+                <Footer style={{ backgroundColor: 'white', padding: '0', height: '50px', lineHeight: '50px'}}>
+                    <FooterBar url={playList.url} isPlay={playList.isPlay} currentName={playList.songName} currentArtist={playList.artist} playList={playList.playList} handleSongEnd={this.handleSongEnd} handleClickPause={this.handleClickPause}/>
                 </Footer>
             </Layout>
         );
@@ -228,6 +322,8 @@ Demo.propTypes = {
     dispatch: propTypes.func,
     getState: propTypes.func,
     user: propTypes.object,
-    detail: propTypes.object
+    detail: propTypes.object,
+    songList: propTypes.object,
+    playList: propTypes.object
 };
 export default connect(mapProps)(Demo);

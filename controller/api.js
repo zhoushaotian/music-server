@@ -241,7 +241,12 @@ router.post('/delete/song', checkLoginMid, bodyParser.json(), function (req, res
         err.status = STATUS_CODE.API_ERROR;
         return next(err);
     }
-    user.delSong(req.session.userId, req.body.songId).then(function (result) {
+    if(!req.body.songListId) {
+        let err = new Error('缺少歌单ID');
+        err.status = STATUS_CODE.API_ERROR;
+        return next(err);
+    }
+    songList.deleteSong(req.body.songListId, req.body.songId, req.session.userId).then(function (result) {
         console.log(result);
         if (result.affectedRows === 0) {
             return res.send(tool.buildResData({
@@ -313,6 +318,19 @@ router.post('/songlist/add', checkLoginMid, bodyParser.json(), function(req, res
             id,
             name: req.body.name
         }, '创建成功'));
+    }).catch(next);
+});
+router.get('/songlist/detail', function(req, res, next) {
+    if(!req.query.id || Number.isNaN(req.query.id)) {
+        let err = new Error('歌单ID不正确');
+        err.status = STATUS_CODE.API_ERROR;
+        return next(err);
+    }
+    songList.queryListDetail(req.query.id).then(function(result) {
+        res.send(tool.buildResData({
+            success: true,
+            result
+        }, '查询成功'));
     }).catch(next);
 });
 /**
@@ -456,13 +474,13 @@ router.post('/delete/note', checkLoginMid, bodyParser.json(), function (req, res
     }).catch(next);
 });
 // 获取推荐歌曲
-router.get('/suggest/song', function (req, res) {
-    music.getSuggestSongs('qq', {
-        limit: 10,
-        raw: true
-    }).then(function (result) {
-        res.send(result);
-    });
+router.get('/suggest/song', function (req, res, next) {
+    songList.suggestSong(20).then(function(result) {
+        res.send(tool.buildResData({
+            success: true,
+            result
+        }, '获取成功'));
+    }).catch(next);
 });
 exports.router = router;
 
