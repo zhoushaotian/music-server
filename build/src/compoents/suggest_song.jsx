@@ -2,7 +2,7 @@ import React from 'react';
 import propTypes from 'prop-types';
 import axios from 'axios';
 
-import { Card, Spin } from 'antd';
+import { Card } from 'antd';
 class SuggestSong extends React.Component {
     constructor(props) {
         super(props);
@@ -16,7 +16,7 @@ class SuggestSong extends React.Component {
             loading: true
         });
         axios.get('/api/suggest/song').then((res) => {
-            if(!this.unmount) {
+            if (!this.unmount) {
                 this.setState({
                     loading: false,
                     songList: res.data.data.result
@@ -28,29 +28,27 @@ class SuggestSong extends React.Component {
         this.unmount = true;
     }
     render() {
-        const { loading, songList } = this.state;
-        const {handleSongClick} = this.props;
+        const { songList } = this.state;
+        const { handleSongClick } = this.props;
         return (
             <div className="suggest-wrapper">
-                <Spin spinning={loading}>
-                    <div className="card-list">
-                        {
-                            songList.map(function (song, index) {
-                                return (
-                                    <div className="card-wrapper" key={index} onClick={() => {handleSongClick(song);}}>
-                                        <Card
-                                            hoverable={true}
-                                            cover={<img src={song.img} />}
-                                            title={`${song.songName}-${song.artist}`}
-                                            style={{ width: '200px' }}
-                                        >
-                                        </Card>
-                                    </div>
-                                );
-                            })
-                        }
-                    </div>
-                </Spin>
+                <div className="card-list">
+                    {
+                        songList.map(function (song, index) {
+                            return (
+                                <div className="card-wrapper" key={index} onClick={() => { handleSongClick(song); }}>
+                                    <Card
+                                        hoverable={true}
+                                        cover={<img src={song.img} />}
+                                        title={`${song.songName}-${song.artist}`}
+                                        style={{ width: '200px' }}
+                                    >
+                                    </Card>
+                                </div>
+                            );
+                        })
+                    }
+                </div>
             </div>
         );
     }

@@ -18,9 +18,10 @@ import {searchSong, updateSearch} from '../actions/list';
 import SongListForm from '../compoents/form/songlist_form';
 import SongDetail from '../compoents/song_detail';
 import FooterBar from '../compoents/footer_bar';
+import FindList from '../compoents/find_list';
 
 
-import {getListDetail, deleteSong} from '../actions/song_list';
+import {getListDetail, deleteSong, markList} from '../actions/song_list';
 import {updatePlayList, updateSongInfo, updatePlayStatus} from '../actions/play_list';
 
 import {optsConvert, fetchSongUrl} from '../tool/tool';
@@ -46,6 +47,7 @@ class Demo extends React.Component {
             curList: 0,
             songDetail: {}
         };
+        this.handleClickList = this.handleClickList.bind(this);
         this.handleMenuClick = this.handleMenuClick.bind(this);
         this.handleSearchSong = this.handleSearchSong.bind(this);
         this.handlePageChange = this.handlePageChange.bind(this);
@@ -56,6 +58,20 @@ class Demo extends React.Component {
         this.handleSongClick = this.handleSongClick.bind(this);
         this.handleSongEnd = this.handleSongEnd.bind(this);
         this.handleClickPause = this.handleClickPause.bind(this);
+        this.handleLoveList = this.handleLoveList.bind(this);
+    }
+    handleLoveList(id) {
+        const {dispatch} = this.props;
+        console.log(id);
+        dispatch(markList(id));
+    }
+    handleClickList(id) {
+        const {dispatch} = this.props;
+        dispatch(getListDetail(id, () => {
+            this.setState({
+                curMenuItem: 'suggestListDetail'
+            });
+        }));
     }
     handleClickPause() {
         const {dispatch, playList} = this.props;
@@ -253,10 +269,12 @@ class Demo extends React.Component {
             myInfo: <MyInfo/>,
             myNote: <Notes/>,
             findSong: <SuggestSong handleSongClick={this.handleSongClick}/>,
+            findList: <FindList onClickList={this.handleClickList}/>,
             searchSong: <SearchSongList songList={list} handleClickRow={this.handleClickRow} handlePageChange={this.handlePageChange} handleLoveSong={this.handleLoveSong} handleAddSong={this.handleAddSong}
                 handleSongClick={this.handleSongClick}/>,
             songListDetail: <SongListDetail listDetail={songList} handleDeleteSong={this.handleDeleteSong} handleClickPlus={this.handleAddSong} handleClickHeart={this.handleLoveSong} handleSongClick={this.handleSongClick}/>,
-            songDetail: <SongDetail handleSongPlay={this.handleSongPlay} song={songDetail} handleHeartSong={this.handleLoveSong} handlePlusSong={this.handleAddSong}/>
+            songDetail: <SongDetail handleSongPlay={this.handleSongPlay} song={songDetail} handleHeartSong={this.handleLoveSong} handlePlusSong={this.handleAddSong}/>,
+            suggestListDetail: <SongListDetail  handleLoveList={this.handleLoveList} listDetail={songList} handleDeleteSong={this.handleDeleteSong} handleClickPlus={this.handleAddSong} handleClickHeart={this.handleLoveSong} handleSongClick={this.handleSongClick} isSuggest={true}/>            
         };
         siderMenu.forEach(function(item) {
             if(item.title === '我收藏的歌单') {

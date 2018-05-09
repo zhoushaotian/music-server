@@ -320,18 +320,31 @@ router.post('/songlist/add', checkLoginMid, bodyParser.json(), function(req, res
         }, '创建成功'));
     }).catch(next);
 });
-router.get('/songlist/detail', function(req, res, next) {
+router.get('/songlist/detail', checkLoginMid, function(req, res, next) {
     if(!req.query.id || Number.isNaN(req.query.id)) {
         let err = new Error('歌单ID不正确');
         err.status = STATUS_CODE.API_ERROR;
         return next(err);
     }
-    songList.queryListDetail(req.query.id).then(function(result) {
-        res.send(tool.buildResData({
-            success: true,
-            result
-        }, '查询成功'));
-    }).catch(next);
+    Promise.all([songList.queryListDetail(req.query.id), songList.queryMarkList(req.session.userId)])
+        .then(function(results) {
+            // 查询这个歌单是否已经被收藏
+            let markList = results[1];
+            for(let i = 0; i < markList.length; i++) {
+                if(results[0].songListId === markList[i].songListId) {
+                    results[0].marked = true;
+                }
+            }
+            // 查这个歌单是否为自己创建的
+            if(results[0].createdBy === req.session.userId) {
+                results[0].own = true;
+            }
+            delete results[0].createdBy;
+            res.send(tool.buildResData({
+                success: true,
+                result: results[0]
+            }));
+        }).catch(next);
 });
 /**
  * 收藏歌单操作
@@ -482,5 +495,34 @@ router.get('/suggest/song', function (req, res, next) {
         }, '获取成功'));
     }).catch(next);
 });
+
+// 分页查询所有歌单
+router.get('/songlist/list', checkLoginMid, function(req, res, next) {
+    if(!parseInt(req.query.currentPage) || !parseInt(req.query.pageSize)) {
+        let err = new Error('缺少分页参数');
+        err.status = STATUS_CODE.API_ERROR;
+        return next(err);
+    }
+    Promise.all([songList.suggestSongList(parseInt(req.query.currentPage), parseInt(req.query.pageSize), req.session.userId), songList.queryListTotal(req.session.userId), songList.queryMarkList(req.session.userId)])
+        .then(function(results) {
+            // 标记每个歌单是否被收藏
+            let suggestList = results[0];
+            let markList = results[2];
+            for(let i = 0; i < markList.length; i++) {
+                for(let j = 0; j < suggestList.length; j++) {
+                    if(markList[i].songListId === suggestList[j].id) {
+                        suggestList[j].marked = true;
+                    }
+                }
+            }
+            res.send(tool.buildResData({
+                data: {
+                    total: results[1][0]['count(*)'],
+                    suggestList: results[0]
+                }
+            }));
+        }).catch(next);
+});
+
 exports.router = router;
 

@@ -1,7 +1,6 @@
 'use strict';
 module.exports.server = {
     'netease': '网易云音乐',
-    'xiami': '虾米音乐',
     'qq': 'QQ音乐'
 };
 
@@ -10,6 +9,11 @@ module.exports.navigation = [
         key: 'findSong',
         title: '发现音乐',
         icon: 'bulb'
+    },
+    {
+        key: 'findList',
+        title: '发现歌单',
+        icon: 'bars'
     },
     {
         key: 'myInfo',
@@ -42,7 +46,7 @@ module.exports.navigation = [
     },
     {
         key: 'myNote',
-        title: '我的留言',
+        title: '所有留言',
         icon: 'message'
     }
 ];

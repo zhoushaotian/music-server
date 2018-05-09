@@ -241,7 +241,7 @@ module.exports.queryListDetail = function(songListId) {
     }).then(function(songList) {
         // 查歌单信息
         return new Promise(function(resolve, reject) {
-            pool.query('select songList.id as songListId,songList.name as listName, songList.time, img, listBio, user.name, user.avatar from user,songList where songList.id = ? and songList.createdBy = user.userId', [songListId], function(err, result) {
+            pool.query('select songList.id as songListId,songList.name as listName, songList.createdBy, songList.time, img, listBio, user.name, user.avatar from user,songList where songList.id = ? and songList.createdBy = user.userId', [songListId], function(err, result) {
                 if(err) {
                     reject(err);
                 }
@@ -258,6 +258,40 @@ module.exports.suggestSong = function(limit) {
         pool.query('select distinct songId,songName,serverName,artist,img from song_map limit ?', [limit], function(err, result) {
             if(err) {
                 reject(err);
+            }
+            resolve(result);
+        });
+    });
+};
+
+module.exports.suggestSongList = function(curPage, pageSize, userId) {
+    return new Promise(function(resolve, reject) {
+        let total = (curPage - 1) * pageSize;
+        pool.query('select songList.id, songList.name, songList.time, songList.img, songList.listBio, user.name as userName from songList,user where createdBy != ? and user.userId = songList.createdBy  limit ?,?', [userId, total, pageSize], function (err, result) {
+            if(err) {
+                return reject(err);
+            }
+            resolve(result);
+        });
+    });
+};
+
+module.exports.queryListTotal = function(userId) {
+    return new Promise(function(resolve, reject) {
+        pool.query('select count(*) from songList where createdBy != ?', [userId], function(err, result) {
+            if(err) {
+                return reject(err);
+            }
+            resolve(result);
+        });
+    });
+};
+
+module.exports.queryMarkList = function(userId) {
+    return new Promise(function(resolve, reject) {
+        pool.query('select * from markSongListMap where userId = ? ', [userId], function(err, result) {
+            if(err) {
+                return reject(err);
             }
             resolve(result);
         });
