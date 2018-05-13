@@ -117,3 +117,25 @@ module.exports.modifyInfo = function(userId, bio) {
         });
     });
 };
+
+module.exports.queryUserByNick = function(nick) {
+    return new Promise(function(resolve, reject) {
+        pool.query('select * from user where name=?', [nick], function(err, result) {
+            if(err) {
+                return reject(err);
+            }
+            return resolve(result);
+        });
+    });
+};
+
+module.exports.queryUserByUserName = function(name) {
+    return new Promise(function(resolve, reject) {
+        pool.query('select * from user where userName=?', [name], function(err, result) {
+            if(err) {
+                return reject(err);
+            }
+            return resolve(result);
+        });
+    });
+};

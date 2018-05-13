@@ -47,7 +47,7 @@ class FindList extends React.Component {
                             })
                         }
                     </div>
-                    <Pagination current={currentPage} pageSize={8} total={total} onChange={this.handlePageChange}/>
+                    <Pagination style={{float: 'right'}} current={currentPage} pageSize={8} total={total} onChange={this.handlePageChange}/>
                 </div>
             </div>
         );

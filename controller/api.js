@@ -27,6 +27,9 @@ const checkLoginMid = require('../middlewares/check').checkLogin;
 const user = require('../model/user');
 const notes = require('../model/notes');
 const songList = require('../model/songList');
+
+const suggestSong = require('../modules/suggest_song');
+
 exports.rootPath = '/api';
 
 /**
@@ -488,7 +491,7 @@ router.post('/delete/note', checkLoginMid, bodyParser.json(), function (req, res
 });
 // 获取推荐歌曲
 router.get('/suggest/song', function (req, res, next) {
-    songList.suggestSong(20).then(function(result) {
+    suggestSong().then(function(result) {
         res.send(tool.buildResData({
             success: true,
             result
@@ -520,6 +523,36 @@ router.get('/songlist/list', checkLoginMid, function(req, res, next) {
                     total: results[1][0]['count(*)'],
                     suggestList: results[0]
                 }
+            }));
+        }).catch(next);
+});
+/**
+ * 查询昵称是否存在
+ */
+router.get('/nick/exit', function(req, res, next) {
+    user.queryUserByNick(req.query.nick)
+        .then(function(result) {
+            if(result.length !== 0) {
+                return res.send(tool.buildResData({
+                    success: false
+                }, '昵称存在'));
+            }
+            return res.send(tool.buildResData({
+                success: true
+            }));
+        }).catch(next);
+});
+
+router.get('/username/exit', function(req, res, next) {
+    user.queryUserByUserName(req.query.userName)
+        .then(function(result) {
+            if(result.length !== 0) {
+                return res.send(tool.buildResData({
+                    success: false
+                }, '用户名存在'));
+            }
+            return res.send(tool.buildResData({
+                success: true
             }));
         }).catch(next);
 });

@@ -3,6 +3,7 @@ import propTypes from 'prop-types';
 
 import { Form, Input, Spin, Button} from 'antd';
 
+import axios from 'axios';
 import AvatarUpload from '../avatar_upload';
 const FormItem = Form.Item;
 class signUpForm extends React.Component {
@@ -27,6 +28,23 @@ class signUpForm extends React.Component {
                                         min: 3,
                                         max: 15,
                                         message: '用户名格式错误'
+                                    },
+                                    {
+                                        validator: (rule, value, cb) => {
+                                            if(!value) {
+                                                cb();
+                                            }
+                                            axios.get('/api/username/exit', {
+                                                params: {
+                                                    userName: value
+                                                }
+                                            }).then((res) => {
+                                                if(!res.data.data.success) {
+                                                    cb('这个用户名已经有人使用了!');
+                                                }
+                                                cb();
+                                            });
+                                        }
                                     }
                                 ]
                             })(
@@ -74,6 +92,23 @@ class signUpForm extends React.Component {
                                     {
                                         required: true,
                                         message: '请填写昵称'
+                                    },
+                                    {
+                                        validator: (rule, value, cb) => {
+                                            if(!value) {
+                                                cb();
+                                            }
+                                            axios.get('/api/nick/exit', {
+                                                params: {
+                                                    nick: value
+                                                }
+                                            }).then((res) => {
+                                                if(!res.data.data.success) {
+                                                    cb('这个昵称已经有人使用了!');
+                                                }
+                                                cb();
+                                            });
+                                        }
                                     }
                                 ]
                             })(
