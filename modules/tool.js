@@ -13,7 +13,7 @@ exports.buildResSongData = function (data, server) {
             song.server = server;
         });
     }
-    console.log('发送数据:');
+    console.log( new Date().toString(), '发送数据:');
     console.log(JSON.stringify(data));
     return data;
 };
@@ -23,7 +23,7 @@ exports.buildResData = function(data, msg) {
     res.status = STATUS_CODE.SUCCESS;
     res.msg = msg;
     res.data = data;
-    console.log('发送数据:', JSON.stringify(res));
+    console.log(new Date().toString(), '发送数据:', JSON.stringify(res));
     return res;
 };
 
