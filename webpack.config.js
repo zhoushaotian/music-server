@@ -24,7 +24,6 @@ module.exports = {
     },
     externals: {
         react: 'React',
-        moment: 'moment',
         'react-dom': 'ReactDOM',
         'react-redux': 'ReactRedux'
     },
