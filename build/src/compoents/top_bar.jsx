@@ -58,7 +58,7 @@ class TopBar extends React.Component {
                         />
                     </Col>
                     <Col md={4} xs={6} sm={6} offset={1}>
-                        <Button type="primary" size='small' ghost><a href="/login">注册</a></Button>
+                        <Button type="primary" size='small' ghost><a href="/login">注册/切换账号</a></Button>
                     </Col>
                 </Row>
             </Spin>

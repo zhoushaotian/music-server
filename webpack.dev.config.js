@@ -22,6 +22,12 @@ module.exports = {
     resolve: {
         extensions: ['.js', '.jsx', '.json']
     },
+    externals: {
+        react: 'React',
+        moment: 'moment',
+        'react-dom': 'ReactDOM',
+        'react-redux': 'ReactRedux'
+    },
     module: {
         rules: [
             {
