@@ -12,7 +12,8 @@ const superAgent = require('superagent');
  *      img: xxx,
  *      serverName: netease,
  *      songId: xxx,
- *      songName: xxx
+ *      songName: xxx，
+ *      url: xxx
  *  }
  * ]
  */

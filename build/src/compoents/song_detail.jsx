@@ -16,7 +16,6 @@ class SongDetail extends React.Component {
                 <div>
                     <Button type="primary" icon="heart-o" className="button-margin" onClick={() => {handleHeartSong(song);}}>喜欢</Button>
                     <Button type="primary" icon="plus" className="button-margin" onClick={() => {handlePlusSong(song);}}>收藏</Button>
-                    <Button type="primary" icon="download" className="button-margin">下载</Button>
                     <Button type="primary" icon="caret-right" onClick={() => {handleSongPlay(song);}}  className="button-margin">播放</Button>
                 </div>
             </div>

@@ -51,6 +51,9 @@ class FooterBar extends React.Component {
                     <Col offset={1}>
                         <span>{currentName}-</span><span>{currentArtist}</span>
                     </Col>
+                    <Col offset={1}>
+                        {url ? <Button icon="download" type="circle"><a href={url} target="__blank"></a></Button> : null}
+                    </Col>
                 </Row>
             </Spin>
         );
