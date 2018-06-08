@@ -54,9 +54,6 @@ class LoginForm extends React.Component {
                     <FormItem>
                         <Button type="primary" onClick={this.handleSubmit}>登录</Button>
                     </FormItem>
-                    <FormItem>
-                        <a className="no-login" href="/">免登录使用</a>
-                    </FormItem>
                 </Form>
             </Spin>
         );

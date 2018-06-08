@@ -1,7 +1,7 @@
 import React from 'react';
 import propTypes from 'prop-types';
 import { connect } from 'react-redux';
-import {Card} from 'antd';
+import {Card, Tag} from 'antd';
 
 import SignUpForm from '../compoents/form/signup_form';
 import LoginForm from '../compoents/form/login_form';
@@ -45,6 +45,8 @@ class LoginPage extends React.Component {
                     <Card tabList={tabList} onTabChange={this.handleTabChange}>
                         {tabContent[this.state.curTabKey]}
                     </Card>
+                    <Tag color="red">本系统的音乐数据来自网易云音乐与QQ音乐，仅供学习交流使用，请勿用于商业用途！</Tag><br/>
+                    <Tag color="gold"><a href="https://github.com/zhoushaotian/music-server">点击查看源代码</a></Tag>
                 </div>
             </div>
         );
