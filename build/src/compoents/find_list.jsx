@@ -33,7 +33,7 @@ class FindList extends React.Component {
                                         <Card
                                             hoverable={true}
                                             cover={<img src={list.img} />}
-                                            title={`${list.name}-${list.userName}`}
+                                            title={`${list.name}`}
                                             style={{ width: '200px' }}
                                         >
                                         </Card>
