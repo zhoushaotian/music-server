@@ -47,15 +47,10 @@ export function markList(id) {
         });
     };
 }
-export function getSuggestList(curPage, pageSize) {
+export function getSuggestList() {
     return function(dispatch) {
         dispatch(updateLoading(true));
-        axios.get('/api/songlist/list', {
-            params: {
-                currentPage: curPage,
-                pageSize
-            }
-        }).then(function(res) {
+        axios.get('/api/songlist/list').then(function(res) {
             dispatch(updateLoading(false));
             dispatch(updateSuggestList(res.data.data.data));
         });

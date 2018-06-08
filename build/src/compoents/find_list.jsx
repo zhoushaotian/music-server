@@ -2,31 +2,26 @@ import React from 'react';
 import propTypes from 'prop-types';
 import { connect } from 'react-redux';
 
-import { Card, Pagination } from 'antd';
+import { Card } from 'antd';
 import { getSuggestList } from '../actions/song_list';
 
 function mapProps(state) {
     return {
         suggestList: state.songList.suggestList,
-        total: state.songList.total
     };
 }
 
 class FindList extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {
-            currentPage: 1
-        };
         this.handlePageChange = this.handlePageChange.bind(this);
     }
     componentDidMount() {
         const { dispatch } = this.props;
-        dispatch(getSuggestList(1, 8));
+        dispatch(getSuggestList());
     }
     render() {
-        const {suggestList, total, onClickList} = this.props;
-        const {currentPage} = this.state;
+        const {suggestList, onClickList} = this.props;
         return (
             <div>
                 <div className="suggest-wrapper">
@@ -47,7 +42,6 @@ class FindList extends React.Component {
                             })
                         }
                     </div>
-                    <Pagination style={{float: 'right'}} current={currentPage} pageSize={8} total={total} onChange={this.handlePageChange}/>
                 </div>
             </div>
         );
@@ -64,7 +58,6 @@ class FindList extends React.Component {
 FindList.propTypes = {
     dispatch: propTypes.func,
     suggestList: propTypes.array,
-    total: propTypes.number,
     onClickList: propTypes.func.isRequired
 };
 

@@ -19,7 +19,6 @@ export default function songList(state = INIT_STATE, action) {
     switch (action.type) {
     case UPDATE_SUGGEST_LIST:
         return Object.assign({}, state, {
-            total: action.data.total,
             suggestList: action.data.suggestList
         });
     case UPDATE_CURRENT_LIST_INFO:

@@ -264,10 +264,9 @@ module.exports.suggestSong = function(limit) {
     });
 };
 
-module.exports.suggestSongList = function(curPage, pageSize, userId) {
+module.exports.suggestSongList = function(userId) {
     return new Promise(function(resolve, reject) {
-        let total = (curPage - 1) * pageSize;
-        pool.query('select songList.id, songList.name, songList.time, songList.img, songList.listBio, user.name as userName from songList,user where createdBy != ? and user.userId = songList.createdBy  limit ?,?', [userId, total, pageSize], function (err, result) {
+        pool.query('select songList.id, songList.name, songList.time, songList.img, songList.listBio, user.name as userName from songList,user where createdBy != ?  and songList.name != ? and user.userId = songList.createdBy', [userId, '我最喜欢的音乐'], function (err, result) {
             if(err) {
                 return reject(err);
             }

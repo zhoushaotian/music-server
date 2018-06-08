@@ -501,12 +501,7 @@ router.get('/suggest/song', function (req, res, next) {
 
 // 分页查询所有歌单
 router.get('/songlist/list', checkLoginMid, function(req, res, next) {
-    if(!parseInt(req.query.currentPage) || !parseInt(req.query.pageSize)) {
-        let err = new Error('缺少分页参数');
-        err.status = STATUS_CODE.API_ERROR;
-        return next(err);
-    }
-    Promise.all([songList.suggestSongList(parseInt(req.query.currentPage), parseInt(req.query.pageSize), req.session.userId), songList.queryListTotal(req.session.userId), songList.queryMarkList(req.session.userId)])
+    Promise.all([songList.suggestSongList(req.session.userId), songList.queryListTotal(req.session.userId), songList.queryMarkList(req.session.userId)])
         .then(function(results) {
             // 标记每个歌单是否被收藏
             let suggestList = results[0];
@@ -520,7 +515,6 @@ router.get('/songlist/list', checkLoginMid, function(req, res, next) {
             }
             res.send(tool.buildResData({
                 data: {
-                    total: results[1][0]['count(*)'],
                     suggestList: results[0]
                 }
             }));
