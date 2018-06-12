@@ -29,6 +29,7 @@ const notes = require('../model/notes');
 const songList = require('../model/songList');
 
 const suggestSong = require('../modules/suggest_song');
+const getQQSongUrl = require('../modules/qq_play');
 
 exports.rootPath = '/api';
 
@@ -74,10 +75,18 @@ router.get('/get/song', function (req, res, next) {
     }
     let id = req.query.id;
     let vendor = req.query.server;
-    music.getSong(vendor, {
-        id,
-        raw: false
-    }).then(function (data) {
+    let fetchPromise;
+    switch(vendor) {
+    case 'qq':
+        fetchPromise = getQQSongUrl(id);
+        break;
+    default:
+        fetchPromise = music.getSong(vendor, {
+            id,
+            raw: false
+        });
+    }
+    fetchPromise.then(function (data) {
         res.send(tool.buildResSongData(data));
     }).catch(next);
 });
